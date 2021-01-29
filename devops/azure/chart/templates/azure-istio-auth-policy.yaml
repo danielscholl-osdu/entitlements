@@ -15,7 +15,7 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: {{ .Chart.Name }}-jwt-authz
+  name: {{ .Chart.Name }}-v2-jwt-authz
   namespace: osdu
 spec:
   selector:
