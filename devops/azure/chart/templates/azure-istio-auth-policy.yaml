@@ -33,5 +33,5 @@ spec:
                        "*/swagger","*/swagger-resources","*/swagger-ui.html",
                        "*/actuator/health", "*/health",
                        "*/configuration/ui","*/configuration/security",
-                       "/entitlements/v2/swagger-resources/*",
-                       "/entitlements/v2/webjars/*" ]
+                       "/api/entitlements/v2/swagger-resources/*",
+                       "/api/entitlements/v2/webjars/*" ]
