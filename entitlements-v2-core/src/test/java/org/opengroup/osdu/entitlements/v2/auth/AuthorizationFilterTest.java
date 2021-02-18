@@ -1,7 +1,6 @@
 package org.opengroup.osdu.entitlements.v2.auth;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -10,7 +9,7 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.http.RequestInfo;
-import org.opengroup.osdu.entitlements.v2.spi.tenantinfo.TenantInfoRepo;
+import org.opengroup.osdu.core.common.model.tenant.TenantInfo;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -34,8 +33,6 @@ public class AuthorizationFilterTest {
     @Mock
     private RequestInfo requestInfo;
     @Mock
-    private TenantInfoRepo tenantInfoRepo;
-    @Mock
     private JaxRsDpsLog log;
     @Mock
     private RequestInfoUtilService requestInfoUtilService;
@@ -48,12 +45,14 @@ public class AuthorizationFilterTest {
         when(headers.getAuthorization()).thenReturn("Bearer 123456");
         when(requestInfo.getHeaders()).thenReturn(headers);
         when(headers.getPartitionId()).thenReturn("dp");
+        TenantInfo tenantInfo = new TenantInfo();
+        tenantInfo.setServiceAccount("service_principal");
+        when(requestInfo.getTenantInfo()).thenReturn(tenantInfo);
     }
 
     @Test
     public void shouldThrow401WhenNoRolesArePassed() {
         when(requestInfoUtilService.getUserId(headers)).thenReturn("a@desid");
-        when(tenantInfoRepo.getServiceAccountOrServicePrincipal("dp")).thenReturn("datafier.service.account");
         try {
             sut.hasAnyPermission();
             fail("should throw exception");
@@ -64,18 +63,15 @@ public class AuthorizationFilterTest {
         }
     }
 
-    @Ignore
     @Test
-    public void shouldAuthenticateRequestWhenRequestIsCalledByDatafier() {
-        when(tenantInfoRepo.getServiceAccountOrServicePrincipal("dp")).thenReturn("datafier.service.account");
-        when(requestInfoUtilService.getUserId(headers)).thenReturn("datafier.service.account");
+    public void shouldAuthenticateRequestWhenRequestIsCalledByServicePrincipal() {
+        when(requestInfoUtilService.getUserId(headers)).thenReturn("service_principal");
 
         assertTrue(this.sut.hasAnyPermission());
     }
 
     @Test
     public void shouldAuthenticateRequestWhenResourceIsRolesAllowedAnnotated() {
-        when(tenantInfoRepo.getServiceAccountOrServicePrincipal("dp")).thenReturn("datafier.service.account");
         when(requestInfoUtilService.getUserId(headers)).thenReturn("a@desid");
         when(this.authService.isAuthorized(any(), eq(ROLE1), eq(ROLE2))).thenReturn(true);
 
@@ -85,7 +81,6 @@ public class AuthorizationFilterTest {
 
     @Test(expected = AppException.class)
     public void shouldThrowAppErrorWhenNoAuthzProvided() {
-        when(tenantInfoRepo.getServiceAccountOrServicePrincipal("dp")).thenReturn("datafier.service.account");
         when(requestInfoUtilService.getUserId(headers)).thenReturn("a@desid");
         when(headers.getAuthorization()).thenReturn("");
 
