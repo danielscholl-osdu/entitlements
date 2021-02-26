@@ -5,6 +5,7 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.http.RequestInfo;
+import org.opengroup.osdu.core.common.model.tenant.TenantInfo;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,11 @@ public class AuthorizationFilter {
         }
         String user = requestInfoUtilService.getUserId(headers);
         requestInfo.getHeaders().put(DpsHeaders.USER_EMAIL, user);
-        if (user.equalsIgnoreCase(requestInfo.getTenantInfo().getServiceAccount())) {
+        TenantInfo tenantInfo = requestInfo.getTenantInfo();
+        if (tenantInfo == null) {
+            throw AppException.createForbidden("Invalid data partition id");
+        }
+        if (user.equalsIgnoreCase(tenantInfo.getServiceAccount())) {
             return true;
         }
         if (requiredRoles.length <= 0) {

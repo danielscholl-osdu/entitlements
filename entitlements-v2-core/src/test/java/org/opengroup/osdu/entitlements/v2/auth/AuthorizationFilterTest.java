@@ -64,6 +64,21 @@ public class AuthorizationFilterTest {
     }
 
     @Test
+    public void shouldThrow403WhenDataPartitionIdIsUnknown() {
+        when(requestInfo.getTenantInfo()).thenReturn(null);
+        when(requestInfoUtilService.getUserId(headers)).thenReturn("a@desid");
+        try {
+            sut.hasAnyPermission();
+            fail("should throw exception");
+        } catch (AppException ex) {
+            assertEquals(403, ex.getError().getCode());
+            assertEquals("The user is not authorized to perform this action", ex.getError().getMessage());
+        } catch (Exception ex) {
+            fail(String.format("should not throw exception: %s", ex));
+        }
+    }
+
+    @Test
     public void shouldAuthenticateRequestWhenRequestIsCalledByServicePrincipal() {
         when(requestInfoUtilService.getUserId(headers)).thenReturn("service_principal");
 
