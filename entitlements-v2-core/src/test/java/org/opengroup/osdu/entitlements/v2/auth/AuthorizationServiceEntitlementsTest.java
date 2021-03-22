@@ -9,7 +9,7 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
-import org.opengroup.osdu.entitlements.v2.service.IGroupCacheService;
+import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -29,7 +29,7 @@ public class AuthorizationServiceEntitlementsTest {
     @Mock
     private JaxRsDpsLog log;
     @Mock
-    private IGroupCacheService groupCacheService;
+    private GroupCacheService groupCacheService;
     @Mock
     private RequestInfoUtilService requestInfoUtilService;
     @Mock

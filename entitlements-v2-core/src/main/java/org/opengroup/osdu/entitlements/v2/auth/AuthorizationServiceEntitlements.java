@@ -4,7 +4,7 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
-import org.opengroup.osdu.entitlements.v2.service.IGroupCacheService;
+import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class AuthorizationServiceEntitlements implements AuthorizationService {
     @Autowired
     private JaxRsDpsLog log;
     @Autowired
-    private IGroupCacheService groupCacheService;
+    private GroupCacheService groupCacheService;
     @Autowired
     private RequestInfoUtilService requestInfoUtilService;
 
