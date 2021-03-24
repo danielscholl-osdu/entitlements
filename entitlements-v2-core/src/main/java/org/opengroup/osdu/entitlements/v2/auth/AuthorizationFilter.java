@@ -28,6 +28,9 @@ public class AuthorizationFilter {
             throw AppException.createUnauthorized("No credentials sent on request.");
         }
         String user = requestInfoUtilService.getUserId(headers);
+        if (user == null ){
+            throw AppException.createUnauthorized("No User Id header provided");
+        }
         requestInfo.getHeaders().put(DpsHeaders.USER_EMAIL, user);
         TenantInfo tenantInfo = requestInfo.getTenantInfo();
         if (tenantInfo == null) {
