@@ -42,7 +42,7 @@ public class AuthorizationFilterTest {
 
     @Before
     public void setup() {
-        when(headers.getAuthorization()).thenReturn("Bearer 123456");
+        when(headers.getAuthorization()).thenReturn("Bearer token");
         when(requestInfo.getHeaders()).thenReturn(headers);
         when(headers.getPartitionId()).thenReturn("dp");
         TenantInfo tenantInfo = new TenantInfo();
