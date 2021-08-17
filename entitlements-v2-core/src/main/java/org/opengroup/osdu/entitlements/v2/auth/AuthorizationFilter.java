@@ -22,7 +22,7 @@ public class AuthorizationFilter {
     private RequestInfoUtilService requestInfoUtilService;
 
     public boolean hasAnyPermission(String... requiredRoles) {
-        log.info(String.format("authorizeAny timestamp: %d", System.currentTimeMillis()));
+        log.debug(String.format("authorizeAny timestamp: %d", System.currentTimeMillis()));
         DpsHeaders headers = requestInfo.getHeaders();
         if (StringUtils.isBlank(headers.getAuthorization())) {
             throw AppException.createUnauthorized("No credentials sent on request.");
