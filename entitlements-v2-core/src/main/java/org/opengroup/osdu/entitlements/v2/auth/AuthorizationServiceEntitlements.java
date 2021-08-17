@@ -27,7 +27,7 @@ public class AuthorizationServiceEntitlements implements AuthorizationService {
 
     @Override
     public boolean isAuthorized(DpsHeaders headers, String... roles) {
-        log.info(String.format("authorizeAny timestamp: %d", System.currentTimeMillis()));
+        log.debug(String.format("authorizeAny timestamp: %d", System.currentTimeMillis()));
         String requesterId = requestInfoUtilService.getUserId(headers);
         List<String> groupNamesOriginalCaller = groupCacheService.getFromPartitionCache(requesterId, headers.getPartitionId())
                 .stream().map(ParentReference::getName).collect(Collectors.toList());
