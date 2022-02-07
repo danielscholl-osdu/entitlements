@@ -23,9 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.IapConfigurationProperties;
+import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.OpenIdProviderConfigurationProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
-import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.impl.IapUserInfoProvider;
-import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.impl.OpenIdUserInfoProvider;
+import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.IUserInfoProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -37,8 +37,8 @@ public class IAPAuthenticator implements IAuthenticator {
 
     private final DpsHeaders dpsHeaders;
     private final IapConfigurationProperties iapConfigurationProperties;
-    private final IapUserInfoProvider iapUserInfoProvider;
-    private final OpenIdUserInfoProvider openIdUserInfoProvider;
+    private final IUserInfoProvider userInfoProvider;
+    private final OpenIdProviderConfigurationProperties openIdProperties;
 
     @Override
     public boolean requestIsAuthenticated(HttpServletRequest request) {
@@ -54,22 +54,24 @@ public class IAPAuthenticator implements IAuthenticator {
         if (iapToken.isPresent() && userIdentity.isPresent()) {
             log.info("Both, IAP token and header {} are present, verify that they are related to the same email.",
                 iapConfigurationProperties.getUserIdHeader());
-            String emailAddress = iapUserInfoProvider.getUserInfoFromToken(iapToken.get()).getEmailAddress();
+            String userId = userInfoProvider.getUserInfoFromToken(iapToken.get())
+                .getStringClaim(openIdProperties.getUserIdClaimName());
             String[] userIdHeaderKeyValue = userIdentity.get().split(":");
             if (userIdHeaderKeyValue.length < 2) {
                 log.warn("Request unauthenticated, malformed user email header, should be in format <account>:<email>.");
                 return false;
             }
             String emailFromHeader = userIdHeaderKeyValue[1];
-            dpsHeaders.put(DpsHeaders.USER_ID, emailAddress);
-            return emailAddress.equals(emailFromHeader);
+            dpsHeaders.put(DpsHeaders.USER_ID, userId);
+            return userId.equals(emailFromHeader);
         }
 
         if (authorization.isPresent()) {
             log.info("IAP token and header {} are missing, authorization token present, validation through OpenID provider.",
                 iapConfigurationProperties.getUserIdHeader());
-            String emailAddress = openIdUserInfoProvider.getUserInfoFromToken(authorization.get()).getEmailAddress();
-            dpsHeaders.put(DpsHeaders.USER_ID, emailAddress);
+            String userId = userInfoProvider.getUserInfoFromToken(authorization.get())
+                .getStringClaim(openIdProperties.getUserIdClaimName());
+            dpsHeaders.put(DpsHeaders.USER_ID, userId);
             return true;
         }
         return false;

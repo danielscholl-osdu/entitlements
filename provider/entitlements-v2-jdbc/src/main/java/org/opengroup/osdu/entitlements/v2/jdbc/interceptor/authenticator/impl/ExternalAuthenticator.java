@@ -17,7 +17,6 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.impl;
 
-import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +24,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntitlementsConfigurationProperties;
-import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.impl.OpenIdUserInfoProvider;
+import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.OpenIdProviderConfigurationProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
+import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.IUserInfoProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,8 @@ public class ExternalAuthenticator implements IAuthenticator {
 
     private final DpsHeaders dpsHeaders;
     private final EntitlementsConfigurationProperties properties;
-    private final OpenIdUserInfoProvider openIdUserInfoProvider;
+    private final IUserInfoProvider userInfoProvider;
+    private final OpenIdProviderConfigurationProperties openIdProperties;
 
     @Override
     public boolean requestIsAuthenticated(HttpServletRequest request) {
@@ -46,27 +47,29 @@ public class ExternalAuthenticator implements IAuthenticator {
         Optional<String> userIdentity = Optional.ofNullable(request.getHeader(properties.getGcpXUserIdentityHeaderName()));
 
         if (!authorization.isPresent() && !userIdentity.isPresent()) {
-            log.warn("Request unauthenticated, token or header {} are required.", properties.getGcpXUserIdentityHeaderName());
+            log.warn("Request unauthenticated, token or header {} are required.",
+                properties.getGcpXUserIdentityHeaderName());
             return false;
         }
 
-        Optional<String> userEmailFromToken = authorization
-            .map(openIdUserInfoProvider::getUserInfoFromToken)
-            .map(UserInfo::getEmailAddress);
+        Optional<String> userId = authorization
+            .map(userInfoProvider::getUserInfoFromToken)
+            .map(userInfo -> userInfo.getStringClaim(openIdProperties.getUserIdClaimName()));
 
-        if (userIdentity.isPresent() && userEmailFromToken.isPresent()) {
-            log.warn("Both, token and header {} are present, verify they are related to the same email.", properties.getGcpXUserIdentityHeaderName());
-            dpsHeaders.put(DpsHeaders.USER_ID, userEmailFromToken.get());
-            return userIdentity.equals(userEmailFromToken);
+        if (userIdentity.isPresent() && userId.isPresent()) {
+            log.warn("Both, token and header {} are present, verify they are related to the same email.",
+                properties.getGcpXUserIdentityHeaderName());
+            dpsHeaders.put(DpsHeaders.USER_ID, userId.get());
+            return userIdentity.equals(userId);
         }
 
-        Optional<String> email = Stream.of(userEmailFromToken, userIdentity)
+        Optional<String> id = Stream.of(userId, userIdentity)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .findFirst();
 
-        if (email.isPresent()) {
-            dpsHeaders.put(DpsHeaders.USER_ID, email.get());
+        if (id.isPresent()) {
+            dpsHeaders.put(DpsHeaders.USER_ID, id.get());
             return true;
         } else {
             return false;
