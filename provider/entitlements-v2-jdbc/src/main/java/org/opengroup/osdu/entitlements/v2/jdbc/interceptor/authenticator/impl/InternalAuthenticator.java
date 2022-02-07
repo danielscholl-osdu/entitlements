@@ -23,8 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntitlementsConfigurationProperties;
-import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.impl.OpenIdUserInfoProvider;
+import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.OpenIdProviderConfigurationProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
+import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.IUserInfoProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,8 @@ public class InternalAuthenticator implements IAuthenticator {
 
     private final DpsHeaders dpsHeaders;
     private final EntitlementsConfigurationProperties properties;
-    private final OpenIdUserInfoProvider openIdUserInfoProvider;
+    private final IUserInfoProvider userInfoProvider;
+    private final OpenIdProviderConfigurationProperties openIdProperties;
 
     @Override
     public boolean requestIsAuthenticated(HttpServletRequest request) {
@@ -46,11 +48,13 @@ public class InternalAuthenticator implements IAuthenticator {
             log.warn("Request unauthenticated, token is required.");
             return false;
         }
-        String emailAddress = openIdUserInfoProvider.getUserInfoFromToken(authorization.get()).getEmailAddress();
-        dpsHeaders.put(DpsHeaders.USER_ID, emailAddress);
+        String userId = userInfoProvider.getUserInfoFromToken(authorization.get())
+            .getStringClaim(openIdProperties.getUserIdClaimName());
+        dpsHeaders.put(DpsHeaders.USER_ID, userId);
         if (userIdentity.isPresent()) {
-            log.warn("Both, token and header {} are present, verify they are related to the same email.", properties.getGcpXUserIdentityHeaderName());
-            return userIdentity.map(emailAddress::equals).orElse(false);
+            log.warn("Both, token and header {} are present, verify they are related to the same email.",
+                properties.getGcpXUserIdentityHeaderName());
+            return userIdentity.map(userId::equals).orElse(false);
         }
         return true;
     }
