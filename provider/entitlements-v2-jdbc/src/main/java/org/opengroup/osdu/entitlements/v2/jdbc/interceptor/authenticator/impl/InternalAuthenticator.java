@@ -26,12 +26,12 @@ import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntitlementsCon
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntitlementsOpenIdProviderConfigurationProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.IUserInfoProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@ConditionalOnProperty(value = "gcp-authentication-mode", havingValue = "INTERNAL", matchIfMissing = true)
+@ConditionalOnExpression(value = "'${gcp-authentication-mode}' == 'INTERNAL' || '${gcp-authentication-mode}' == 'ISTIO'")
 @RequiredArgsConstructor
 public class InternalAuthenticator implements IAuthenticator {
 
