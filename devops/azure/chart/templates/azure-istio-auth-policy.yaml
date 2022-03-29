@@ -28,13 +28,13 @@ spec:
             notRequestPrincipals: [ "*" ]
       to:
         - operation:
-            notPaths: ["/","*/index.html",
-                       "*/v2/api-docs",
-                       "*/api/entitlements/v2/info",
-                       "*/swagger","*/swagger-resources","*/swagger-ui.html",
+            notPaths: ["/",
                        "*/actuator/health", "*/health",
-                       "*/configuration/ui","*/configuration/security",
-                       "/api/entitlements/v2/swagger-resources/*",
-                       "/api/entitlements/v2/webjars/*",
-                       "*/v3/api-docs",
-                       "*/swagger-ui/*"]
+                       "/api/{{ .Chart.Name }}/v2/v3/api-docs",
+                       "/api/{{ .Chart.Name }}/v2/swagger-resources",
+                       "/api/{{ .Chart.Name }}/v2/swagger-resources/configuration/*",
+                       "/api/{{ .Chart.Name }}/v2/swagger-ui/index.html",
+                       "/api/{{ .Chart.Name }}/v2/swagger-ui/swagger-ui*",
+                       "/api/{{ .Chart.Name }}/v2/swagger-ui/springfox*",
+                       "/api/{{ .Chart.Name }}/v2/swagger-ui/favicon*",
+                       "/api/{{ .Chart.Name }}/v2/info"]
