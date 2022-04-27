@@ -16,6 +16,7 @@ spec:
     when:
     - key: request.auth.claims[iss]
       values:
-      - "{{ .Values.auth.public_url }}/auth/realms/{{ .Values.auth.realm }}"
-      - "{{ .Values.auth.local_url }}/auth/realms/{{ .Values.auth.realm }}"
+      - "https://keycloak.{{ .Values.auth.public_url }}/auth/realms/{{ .Values.auth.realm }}"
+      - "http://keycloak.{{ .Values.auth.public_url }}/auth/realms/{{ .Values.auth.realm }}"
+      - "http://{{ .Values.auth.local_url }}/auth/realms/{{ .Values.auth.realm }}"
 {{- end }}
