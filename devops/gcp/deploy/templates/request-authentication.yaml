@@ -1,21 +1,21 @@
-{{- if .Values.conf.on_prem_enabled }}
+{{- if .Values.conf.onPremEnabled }}
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
 metadata:
-  name: "{{ .Values.conf.app_name }}-jwt-policy"
+  name: "{{ .Values.conf.appName }}-jwt-policy"
   namespace: "{{ .Release.Namespace }}"
 spec:
   selector:
     matchLabels:
-      app: "{{ .Values.conf.app_name }}"
+      app: "{{ .Values.conf.appName }}"
   jwtRules:
-  - issuer: "https://keycloak.{{ .Values.auth.public_url }}/auth/realms/{{ .Values.auth.realm }}"
-    jwksUri: "http://{{ .Values.auth.local_url }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
+  - issuer: "https://keycloak.{{- default (printf "%s.%s" ((index (lookup "v1" "Service" .Values.auth.istioNamespace "istio-ingressgateway").status.loadBalancer.ingress 0).ip) "nip.io") .Values.auth.publicUrl -}}/auth/realms/{{ .Values.auth.realm }}"
+    jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
-  - issuer: "http://keycloak.{{ .Values.auth.public_url }}/auth/realms/{{ .Values.auth.realm }}"
-    jwksUri: "http://{{ .Values.auth.local_url }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
+  - issuer: "http://keycloak.{{- default (printf "%s.%s" ((index (lookup "v1" "Service" .Values.auth.istioNamespace "istio-ingressgateway").status.loadBalancer.ingress 0).ip) "nip.io") .Values.auth.publicUrl -}}/auth/realms/{{ .Values.auth.realm }}"
+    jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
-  - issuer: "http://{{ .Values.auth.local_url }}/auth/realms/{{ .Values.auth.realm }}"
-    jwksUri: "http://{{ .Values.auth.local_url }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
+  - issuer: "http://{{ .Values.auth.localUrl }}/auth/realms/{{ .Values.auth.realm }}"
+    jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
 {{- end }}
