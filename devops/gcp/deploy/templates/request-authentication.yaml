@@ -9,10 +9,10 @@ spec:
     matchLabels:
       app: "{{ .Values.conf.appName }}"
   jwtRules:
-  - issuer: "https://keycloak.{{ .Values.auth.publicUrl }}/auth/realms/{{ .Values.auth.realm }}"
+  - issuer: "https://keycloak.{{- default (printf "%s.%s" ((index (lookup "v1" "Service" .Values.auth.istioNamespace "istio-ingressgateway").status.loadBalancer.ingress 0).ip) "nip.io") .Values.auth.publicUrl -}}/auth/realms/{{ .Values.auth.realm }}"
     jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
-  - issuer: "http://keycloak.{{ .Values.auth.publicUrl }}/auth/realms/{{ .Values.auth.realm }}"
+  - issuer: "http://keycloak.{{- default (printf "%s.%s" ((index (lookup "v1" "Service" .Values.auth.istioNamespace "istio-ingressgateway").status.loadBalancer.ingress 0).ip) "nip.io") .Values.auth.publicUrl -}}/auth/realms/{{ .Values.auth.realm }}"
     jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/auth/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
   - issuer: "http://{{ .Values.auth.localUrl }}/auth/realms/{{ .Values.auth.realm }}"
