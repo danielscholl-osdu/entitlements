@@ -16,7 +16,7 @@ spec:
     when:
     - key: request.auth.claims[iss]
       values:
-      - "https://keycloak.{{- default (printf "%s.%s" ((index (lookup "v1" "Service" .Values.auth.istioNamespace "istio-ingressgateway").status.loadBalancer.ingress 0).ip) "nip.io") .Values.auth.publicUrl -}}/auth/realms/{{ .Values.auth.realm }}"
-      - "http://keycloak.{{- default (printf "%s.%s" ((index (lookup "v1" "Service" .Values.auth.istioNamespace "istio-ingressgateway").status.loadBalancer.ingress 0).ip) "nip.io") .Values.auth.publicUrl -}}/auth/realms/{{ .Values.auth.realm }}"
+      - "https://keycloak.{{ .Values.auth.publicUrl }}/auth/realms/{{ .Values.auth.realm }}"
+      - "http://keycloak.{{ .Values.auth.publicUrl }}/auth/realms/{{ .Values.auth.realm }}"
       - "http://{{ .Values.auth.localUrl }}/auth/realms/{{ .Values.auth.realm }}"
 {{- end }}
