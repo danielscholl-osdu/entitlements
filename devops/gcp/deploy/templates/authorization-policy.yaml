@@ -1,3 +1,4 @@
+{{- if .Values.conf.istioEnabled }}
 {{- if .Values.conf.onPremEnabled }}
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -19,4 +20,5 @@ spec:
       - "https://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}"
       - "http://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}"
       - "http://{{ .Values.auth.localUrl }}/realms/{{ .Values.auth.realm }}"
+{{- end }}
 {{- end }}
