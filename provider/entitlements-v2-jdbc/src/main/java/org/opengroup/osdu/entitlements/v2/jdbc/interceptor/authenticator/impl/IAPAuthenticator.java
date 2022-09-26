@@ -52,7 +52,7 @@ public class IAPAuthenticator implements IAuthenticator {
         }
 
         if (iapToken.isPresent() && userIdentity.isPresent()) {
-            log.info("Both, IAP token and header {} are present, verify that they are related to the same email.",
+            log.debug("Both, IAP token and header {} are present, verify that they are related to the same email.",
                 iapConfigurationProperties.getUserIdHeader());
             String userId = userInfoProvider.getUserInfoFromToken(iapToken.get())
                 .getStringClaim(openIdProperties.getUserIdClaimName());
@@ -67,7 +67,7 @@ public class IAPAuthenticator implements IAuthenticator {
         }
 
         if (authorization.isPresent()) {
-            log.info("IAP token and header {} are missing, authorization token present, validation through OpenID provider.",
+            log.debug("IAP token and header {} are missing, authorization token present, validation through OpenID provider.",
                 iapConfigurationProperties.getUserIdHeader());
             String userId = userInfoProvider.getUserInfoFromToken(authorization.get())
                 .getStringClaim(openIdProperties.getUserIdClaimName());
