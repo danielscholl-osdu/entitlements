@@ -20,5 +20,11 @@ spec:
       - "https://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}"
       - "http://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}"
       - "http://{{ .Values.auth.localUrl }}/realms/{{ .Values.auth.realm }}"
+  - to:
+    - operation:
+        methods:
+        - GET
+        paths:
+        - /api/entitlements/v2/info
 {{- end }}
 {{- end }}
