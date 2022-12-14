@@ -3,12 +3,12 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: "{{ .Values.conf.appName }}-jwt-policy"
-  namespace: "{{ .Release.Namespace }}"
+  name: {{ printf "%s-jwt-policy" .Values.conf.appName | quote }}
+  namespace: {{ .Release.Namespace | quote }}
 spec:
   selector:
     matchLabels:
-      app: "{{ .Values.conf.appName }}"
+      app: {{ .Values.conf.appName | quote }}
   action: ALLOW
   rules:
   - from:
