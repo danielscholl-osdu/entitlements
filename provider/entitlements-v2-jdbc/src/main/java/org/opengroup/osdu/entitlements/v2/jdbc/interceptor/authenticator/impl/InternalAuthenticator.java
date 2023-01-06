@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntitlementsConfigurationProperties;
-import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntitlementsOpenIdProviderConfigurationProperties;
+import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.OpenIdProviderProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.IUserInfoProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -38,7 +38,7 @@ public class InternalAuthenticator implements IAuthenticator {
     private final DpsHeaders dpsHeaders;
     private final EntitlementsConfigurationProperties properties;
     private final IUserInfoProvider userInfoProvider;
-    private final EntitlementsOpenIdProviderConfigurationProperties openIdProperties;
+    private final OpenIdProviderProperties openIdProperties;
 
     @Override
     public boolean requestIsAuthenticated(HttpServletRequest request) {
