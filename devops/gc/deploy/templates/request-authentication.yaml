@@ -1,5 +1,5 @@
 {{- if .Values.conf.istioEnabled }}
-{{- if .Values.conf.onPremEnabled }}
+{{- if .Values.global.onPremEnabled }}
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
 metadata:
@@ -10,14 +10,20 @@ spec:
     matchLabels:
       app: {{ .Values.conf.appName | quote }}
   jwtRules:
-  - issuer: "https://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}" 
+  {{- if .Values.auth.keycloakUrl }}
+  - issuer: "https://{{ .Values.auth.keycloakUrl }}/realms/{{ .Values.auth.realm }}"
+    jwksUri: "https://{{ .Values.auth.keycloakUrl }}/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
+    forwardOriginalToken: true
+  {{- else }}
+  - issuer: "https://keycloak.{{ .Values.global.domain }}/realms/{{ .Values.auth.realm }}"
     jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
-  - issuer: "http://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}"
+  - issuer: "http://keycloak.{{ .Values.global.domain }}/realms/{{ .Values.auth.realm }}"
     jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
   - issuer: "http://{{ .Values.auth.localUrl }}/realms/{{ .Values.auth.realm }}"
     jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
+  {{- end }}
 {{- end }}
 {{- end }}

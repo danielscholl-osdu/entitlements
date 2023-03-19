@@ -1,5 +1,5 @@
 {{- if .Values.conf.istioEnabled }}
-{{- if .Values.conf.onPremEnabled }}
+{{- if .Values.global.onPremEnabled }}
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
@@ -17,9 +17,13 @@ spec:
     when:
     - key: request.auth.claims[iss]
       values:
-      - "https://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}"
-      - "http://keycloak.{{ .Values.auth.publicUrl }}/realms/{{ .Values.auth.realm }}"
+      {{- if .Values.auth.keycloakUrl }}
+      - "https://{{ .Values.auth.keycloakUrl }}/realms/{{ .Values.auth.realm }}"
+      {{- else }}
+      - "https://keycloak.{{ .Values.global.domain }}/realms/{{ .Values.auth.realm }}"
+      - "http://keycloak.{{ .Values.global.domain }}/realms/{{ .Values.auth.realm }}"
       - "http://{{ .Values.auth.localUrl }}/realms/{{ .Values.auth.realm }}"
+      {{- end }}
   - to:
     - operation:
         methods:
