@@ -1,4 +1,3 @@
-{{- if .Values.conf.istioEnabled }}
 {{- if .Values.global.onPremEnabled }}
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -30,5 +29,4 @@ spec:
         - GET
         paths:
         - /api/entitlements/v2/info
-{{- end }}
 {{- end }}
