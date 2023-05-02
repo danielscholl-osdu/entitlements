@@ -1,4 +1,3 @@
-{{- if .Values.conf.istioEnabled }}
 {{- if .Values.global.onPremEnabled }}
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
@@ -25,5 +24,4 @@ spec:
     jwksUri: "http://{{ .Values.auth.localUrl }}.{{ .Release.Namespace }}.svc.cluster.local/realms/{{ .Values.auth.realm }}/protocol/openid-connect/certs"
     forwardOriginalToken: true
   {{- end }}
-{{- end }}
 {{- end }}
