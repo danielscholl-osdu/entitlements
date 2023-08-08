@@ -9,7 +9,7 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
-import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
+import org.opengroup.osdu.entitlements.v2.service.GroupsProvider;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -29,7 +29,7 @@ public class AuthorizationServiceEntitlementsTest {
     @Mock
     private JaxRsDpsLog log;
     @Mock
-    private GroupCacheService groupCacheService;
+    private GroupsProvider groupsProvider;
     @Mock
     private RequestInfoUtilService requestInfoUtilService;
     @Mock
@@ -48,7 +48,7 @@ public class AuthorizationServiceEntitlementsTest {
     public void shouldReturnTrueWhenUserHasPermission() {
         ParentReference userGroupNode = ParentReference.builder().id("users@dp.domain.com").name("users").dataPartitionId("dp").build();
         ParentReference serviceGroupNode = ParentReference.builder().id("service.register.user@dp.domain.com").name("service.register.user").dataPartitionId("dp").build();
-        when(groupCacheService.getFromPartitionCache("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
+        when(groupsProvider.getGroupsInContext("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
 
         assertTrue(sut.isAuthorized(headers, "service.register.user"));
     }
@@ -57,7 +57,7 @@ public class AuthorizationServiceEntitlementsTest {
     public void shouldReturnTrueWhenUserHasAnyPermission() {
         ParentReference userGroupNode = ParentReference.builder().id("users@dp.domain.com").name("users").dataPartitionId("dp").build();
         ParentReference serviceGroupNode = ParentReference.builder().id("service.register.user@dp.domain.com").name("service.register.user").dataPartitionId("dp").build();
-        when(groupCacheService.getFromPartitionCache("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
+        when(groupsProvider.getGroupsInContext("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
 
         assertTrue(sut.isAuthorized(headers, "service.register.user", "service.register.editor"));
     }
@@ -65,7 +65,7 @@ public class AuthorizationServiceEntitlementsTest {
     @Test
     public void shouldThrow401WhenUserDoesNotBelongToRootUserGroup() {
         ParentReference serviceGroupNode = ParentReference.builder().id("service.register.user@dp.domain.com").name("service.register.user").dataPartitionId("dp").build();
-        when(groupCacheService.getFromPartitionCache("akelham@bbc.com", "dp")).thenReturn(new HashSet<>(Collections.singletonList(serviceGroupNode)));
+        when(groupsProvider.getGroupsInContext("akelham@bbc.com", "dp")).thenReturn(new HashSet<>(Collections.singletonList(serviceGroupNode)));
 
         try {
             sut.isAuthorized(headers, "service.register.user");
@@ -81,7 +81,7 @@ public class AuthorizationServiceEntitlementsTest {
     public void shouldThrowUnauthorizedWhenUserDoesNotHaveRequiredPermission() {
         ParentReference userGroupNode = ParentReference.builder().id("users@dp.domain.com").name("users").dataPartitionId("dp").build();
         ParentReference serviceGroupNode = ParentReference.builder().id("service.register.user@dp.domain.com").name("service.register.user").dataPartitionId("dp").build();
-        when(groupCacheService.getFromPartitionCache("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
+        when(groupsProvider.getGroupsInContext("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
 
         try {
             sut.isAuthorized(DpsHeaders.createFromMap(new HashMap<>()), "service.register.editor");
