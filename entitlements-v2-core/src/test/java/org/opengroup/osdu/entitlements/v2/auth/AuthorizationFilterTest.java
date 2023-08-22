@@ -75,7 +75,7 @@ public class AuthorizationFilterTest {
             fail("should throw exception");
         } catch (AppException ex) {
             assertEquals(403, ex.getError().getCode());
-            assertEquals("The user is not authorized to perform this action", ex.getError().getMessage());
+            assertEquals("Invalid data partition id", ex.getError().getMessage());
         } catch (Exception ex) {
             fail(String.format("should not throw exception: %s", ex));
         }
