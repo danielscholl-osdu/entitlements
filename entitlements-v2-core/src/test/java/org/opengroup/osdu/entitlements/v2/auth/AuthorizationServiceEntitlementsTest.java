@@ -50,7 +50,7 @@ public class AuthorizationServiceEntitlementsTest {
         ParentReference serviceGroupNode = ParentReference.builder().id("service.register.user@dp.domain.com").name("service.register.user").dataPartitionId("dp").build();
         when(groupsProvider.getGroupsInContext("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
 
-        assertTrue(sut.isAuthorized(headers, "service.register.user"));
+        assertTrue(sut.isCurrentUserAuthorized(headers, "service.register.user"));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class AuthorizationServiceEntitlementsTest {
         ParentReference serviceGroupNode = ParentReference.builder().id("service.register.user@dp.domain.com").name("service.register.user").dataPartitionId("dp").build();
         when(groupsProvider.getGroupsInContext("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
 
-        assertTrue(sut.isAuthorized(headers, "service.register.user", "service.register.editor"));
+        assertTrue(sut.isCurrentUserAuthorized(headers, "service.register.user", "service.register.editor"));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class AuthorizationServiceEntitlementsTest {
         when(groupsProvider.getGroupsInContext("akelham@bbc.com", "dp")).thenReturn(new HashSet<>(Collections.singletonList(serviceGroupNode)));
 
         try {
-            sut.isAuthorized(headers, "service.register.user");
+            sut.isCurrentUserAuthorized(headers, "service.register.user");
             fail("should throw exception");
         } catch (AppException ex) {
             assertEquals(401, ex.getError().getCode());
@@ -84,7 +84,7 @@ public class AuthorizationServiceEntitlementsTest {
         when(groupsProvider.getGroupsInContext("a@test.com", "dp")).thenReturn(new HashSet<>(Arrays.asList(userGroupNode, serviceGroupNode)));
 
         try {
-            sut.isAuthorized(DpsHeaders.createFromMap(new HashMap<>()), "service.register.editor");
+            sut.isCurrentUserAuthorized(DpsHeaders.createFromMap(new HashMap<>()), "service.register.editor");
             fail("expected exception");
         } catch (AppException ex) {
             assertEquals(401, ex.getError().getCode());

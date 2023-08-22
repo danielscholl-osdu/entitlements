@@ -21,26 +21,36 @@ public class AuthorizationServiceEntitlements implements AuthorizationService {
     @Autowired
     private JaxRsDpsLog log;
     @Autowired
-    private GroupsProvider groupsProvider;
-    @Autowired
     private RequestInfoUtilService requestInfoUtilService;
+    @Autowired
+    private GroupsProvider groupsProvider;
 
     @Override
-    public boolean isAuthorized(DpsHeaders headers, String... roles) {
+    public boolean isCurrentUserAuthorized(DpsHeaders headers, String... roles) {
         log.debug(String.format("authorizeAny timestamp: %d", System.currentTimeMillis()));
         String requesterId = requestInfoUtilService.getUserId(headers);
         List<String> groupNamesOriginalCaller = groupsProvider.getGroupsInContext(requesterId, headers.getPartitionId())
                 .stream().map(ParentReference::getName).collect(Collectors.toList());
-        checkPermission(groupNamesOriginalCaller, roles);
-        return requesterId != null;
+        if(!isValidGroups(groupNamesOriginalCaller, roles)){
+            throw AppException.createUnauthorized(UNAUTHORIZED_ERROR_MESSAGE);
+        }else {
+            return requesterId != null;
+        }
     }
 
-    private void checkPermission(List<String> groupNames, String... roles) {
+    @Override
+    public boolean isGivenUserAuthorized(String userId, String partitionId, String... roles) {
+        List<String> groupNamesOriginalCaller = groupsProvider.getGroupsInContext(userId, partitionId)
+            .stream()
+            .map(ParentReference::getName)
+            .collect(Collectors.toList());
+        return isValidGroups(groupNamesOriginalCaller, roles);
+    }
+
+    private boolean isValidGroups(List<String> groupNames, String... roles) {
         if (!groupNames.contains("users")) {
-            throw AppException.createUnauthorized(UNAUTHORIZED_ERROR_MESSAGE);
+            return false;
         }
-        if (Collections.disjoint(groupNames, Arrays.asList(roles))) {
-            throw AppException.createUnauthorized(UNAUTHORIZED_ERROR_MESSAGE);
-        }
+        return !Collections.disjoint(groupNames, Arrays.asList(roles));
     }
 }
