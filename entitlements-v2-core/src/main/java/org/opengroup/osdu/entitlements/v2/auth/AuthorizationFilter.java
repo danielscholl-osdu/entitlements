@@ -1,7 +1,6 @@
 package org.opengroup.osdu.entitlements.v2.auth;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
@@ -36,7 +35,9 @@ public class AuthorizationFilter {
         requestInfo.getHeaders().put(DpsHeaders.USER_EMAIL, user);
         TenantInfo tenantInfo = requestInfo.getTenantInfo();
         if (tenantInfo == null) {
-            throw new AppException(HttpStatus.SC_FORBIDDEN, "Forbidden", "Invalid data partition id");
+            throw new AppException(HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                "Invalid data partition id");
         }
         if (user.equalsIgnoreCase(tenantInfo.getServiceAccount())) {
             return true;
