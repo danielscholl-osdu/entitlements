@@ -4,7 +4,7 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
-import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
+import org.opengroup.osdu.entitlements.v2.service.GroupsProvider;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class AuthorizationServiceEntitlements implements AuthorizationService {
     @Autowired
     private JaxRsDpsLog log;
     @Autowired
-    private GroupCacheService groupCacheService;
+    private GroupsProvider groupsProvider;
     @Autowired
     private RequestInfoUtilService requestInfoUtilService;
 
@@ -29,7 +29,7 @@ public class AuthorizationServiceEntitlements implements AuthorizationService {
     public boolean isAuthorized(DpsHeaders headers, String... roles) {
         log.debug(String.format("authorizeAny timestamp: %d", System.currentTimeMillis()));
         String requesterId = requestInfoUtilService.getUserId(headers);
-        List<String> groupNamesOriginalCaller = groupCacheService.getFromPartitionCache(requesterId, headers.getPartitionId())
+        List<String> groupNamesOriginalCaller = groupsProvider.getGroupsInContext(requesterId, headers.getPartitionId())
                 .stream().map(ParentReference::getName).collect(Collectors.toList());
         checkPermission(groupNamesOriginalCaller, roles);
         return requesterId != null;
