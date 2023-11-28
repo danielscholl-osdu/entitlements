@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
-import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntitlementsConfigurationProperties;
+import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntConfigProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.OpenIdProviderProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.userinfo.IUserInfoProvider;
@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
 public class InternalAuthenticator implements IAuthenticator {
 
     private final DpsHeaders dpsHeaders;
-    private final EntitlementsConfigurationProperties properties;
+    private final EntConfigProperties properties;
     private final IUserInfoProvider userInfoProvider;
     private final OpenIdProviderProperties openIdProperties;
 
