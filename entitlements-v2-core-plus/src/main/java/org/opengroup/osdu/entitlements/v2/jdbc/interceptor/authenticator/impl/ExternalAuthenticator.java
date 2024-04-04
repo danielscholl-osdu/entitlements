@@ -19,7 +19,7 @@ package org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.impl;
 
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
