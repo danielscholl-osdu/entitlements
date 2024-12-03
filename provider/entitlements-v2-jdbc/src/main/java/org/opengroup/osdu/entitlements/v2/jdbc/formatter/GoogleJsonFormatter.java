@@ -1,6 +1,6 @@
 /*
- *  Copyright 2020-2021 Google LLC
- *  Copyright 2020-2021 EPAM Systems, Inc
+ *  Copyright 2020-2024 Google LLC
+ *  Copyright 2020-2024 EPAM Systems, Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +15,20 @@
  *  limitations under the License.
  */
 
-package org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator;
+package org.opengroup.osdu.entitlements.v2.jdbc.formatter;
 
-import jakarta.servlet.http.HttpServletRequest;
+import ch.qos.logback.contrib.jackson.JacksonJsonFormatter;
+import java.io.IOException;
+import java.util.Map;
 
-public interface IAuthenticator {
+public class GoogleJsonFormatter extends JacksonJsonFormatter {
 
-    boolean requestIsAuthenticated(HttpServletRequest request);
+  private static final String SEVERITY = "severity";
+  private static final String LEVEL = "level";
+
+  @Override
+  public String toJsonString(Map map) throws IOException {
+    map.put(SEVERITY, map.remove(LEVEL));
+    return super.toJsonString(map);
+  }
 }

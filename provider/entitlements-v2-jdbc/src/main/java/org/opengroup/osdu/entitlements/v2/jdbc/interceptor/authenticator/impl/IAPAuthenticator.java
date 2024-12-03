@@ -1,6 +1,6 @@
 /*
- *  Copyright 2020-2021 Google LLC
- *  Copyright 2020-2021 EPAM Systems, Inc
+ *  Copyright 2020-2024 Google LLC
+ *  Copyright 2020-2024 EPAM Systems, Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@ConditionalOnProperty(value = "gcp-authentication-mode", havingValue = "IAP")
+@ConditionalOnProperty(value = "authentication-mode", havingValue = "IAP")
 @RequiredArgsConstructor
 public class IAPAuthenticator implements IAuthenticator {
 
