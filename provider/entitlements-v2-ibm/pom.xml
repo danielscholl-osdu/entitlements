@@ -4,7 +4,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <os-core-lib-ibm.version>0.29.0-SNAPSHOT</os-core-lib-ibm.version>
+        <os-core-lib-ibm.version>0.28.0</os-core-lib-ibm.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
 		<jackson.version>2.18.1</jackson.version>

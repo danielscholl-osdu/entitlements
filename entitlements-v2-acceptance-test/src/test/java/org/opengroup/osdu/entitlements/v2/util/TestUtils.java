@@ -2,17 +2,6 @@ package org.opengroup.osdu.entitlements.v2.util;
 
 import com.google.gson.Gson;
 import java.util.Map;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import java.net.MalformedURLException;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.hc.client5.http.config.ConnectionConfig;
-import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
-import org.opengroup.osdu.entitlements.v2.acceptance.AcceptanceBaseTest;
 
 
 public abstract class TestUtils {
