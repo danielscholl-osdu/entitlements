@@ -20,15 +20,6 @@ cimpl-acceptance-test:
     PARTITION_URL: "https://osdu.dev1.osdu-cimpl.opengroup.org/api/partition/v1/"
 
 cimpl-test:
-  environment:
-    name: Cimpl
-  extends:
-    - .cimpl-variables
-    - .maven
-  stage: integration
-  tags: ["osdu-medium"]
-  needs: ["cimpl-deploy"]
-  retry: 1
   script:
     - >
       $MAVEN_BUILD . test-results.log
@@ -36,15 +27,4 @@ cimpl-test:
       --file $CIMPL_TESTING_DIR/pom.xml
       --projects $CIMPL_TEST_PROJECT
       --update-snapshots
-  artifacts:
-    when: always
-    paths:
-      - test-results.log
-    expire_in: 2 days
-  rules:
-    - if: "$CI_COMMIT_BRANCH =~ /^release/"
-      when: never
-    - if: "$CI_COMMIT_TAG"
-      when: never
-    - if: '$CIMPL == "1"'
-      when: on_success
+
