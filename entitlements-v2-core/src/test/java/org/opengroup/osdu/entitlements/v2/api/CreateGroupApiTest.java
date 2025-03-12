@@ -66,7 +66,7 @@ public class CreateGroupApiTest {
 
     @Test
     public void shouldMatchExpectedHttpRequest() throws Exception {
-        CreateGroupDto dto = new CreateGroupDto("service.viewers_123-{{tenant}}", "My viewers group");
+        CreateGroupDto dto = new CreateGroupDto("service.viewers_123-tenant", "My viewers group");
         performCreateGroupRequest(dto).andExpect(status().isCreated());
     }
 
