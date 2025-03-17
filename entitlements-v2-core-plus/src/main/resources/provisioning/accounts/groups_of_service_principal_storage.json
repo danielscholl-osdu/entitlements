@@ -14,6 +14,9 @@
     },
     {
       "groupName": "service.entitlements.user"
+    },
+    {
+      "groupName": "service.storage.viewer"
     }
   ]
 }
