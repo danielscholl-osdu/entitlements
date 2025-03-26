@@ -146,7 +146,7 @@ token validation.
 | users.datalake.delegation  |                           |
 
 
-#***REMOVED*** service account configuration
+## Google Cloud service account configuration
 
 TBD
 
