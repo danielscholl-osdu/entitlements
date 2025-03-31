@@ -15,6 +15,8 @@ import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeAction;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeEvent;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeType;
+import org.opengroup.osdu.entitlements.v2.service.featureflag.FeatureFlag;
+import org.opengroup.osdu.entitlements.v2.service.featureflag.PartitionFeatureFlagService;
 import org.opengroup.osdu.entitlements.v2.spi.addmember.AddMemberRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +38,14 @@ public class AddMemberService {
     private final PermissionService permissionService;
     private final GroupCacheService groupCacheService;
     private final MemberCacheService memberCacheService;
+    private final PartitionFeatureFlagService partitionFeatureFlagService;
     private final RequestInfo requestInfo;
     @Autowired(required = false)
     private IEventPublisher eventPublisher;
     @Value("${event-publishing.enabled:false}")
     private Boolean eventPublishingEnabled;
+    @Value("${group.size.max:20000}")
+    private int maxGroupSize;
 
     /**
      * Add Member only allows to create a member node for a new user (first time add a user to a data partition), but not for a group.
@@ -63,6 +68,13 @@ public class AddMemberService {
         if (memberNode.getDirectChildReference(retrieveGroupRepo, existingGroupEntityNode).isPresent()) {
             throw new AppException(HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.getReasonPhrase(), String.format("%s is already a member of group %s", addMemberDto.getEmail(), addMemberServiceDto.getGroupEmail()));
         }
+
+        int groupSize = memberCacheService.getFromPartitionCache(addMemberServiceDto.getGroupEmail(), addMemberServiceDto.getPartitionId()).size();
+        if (groupSizeLimitEnabled(addMemberServiceDto.getPartitionId()) && groupSize >= maxGroupSize) {
+            log.error(String.format("Group %s already has %d members", addMemberServiceDto.getGroupEmail(), groupSize));
+            throw new AppException(HttpStatus.PRECONDITION_FAILED.value(), HttpStatus.PRECONDITION_FAILED.getReasonPhrase(), String.format("Identity %s cannot be added to the group %s, the group has reached its size quota of %d members", addMemberDto.getEmail(), addMemberServiceDto.getGroupEmail(), maxGroupSize));
+        }
+
         Set<ParentReference> allExistingParents = retrieveGroupRepo.loadAllParents(memberNode).getParentReferences();
         Set<ParentReference> allExistingParentsFilteredByPartition =
                 allExistingParents.stream().filter(ref -> ref.getDataPartitionId().equalsIgnoreCase(addMemberServiceDto.getPartitionId())).collect(Collectors.toSet());
@@ -104,5 +116,9 @@ public class AddMemberService {
 
             eventPublisher.publish(event, requestInfo.getHeaders().getHeaders());
         }
+    }
+
+    private boolean groupSizeLimitEnabled(String partitionId) {
+        return partitionFeatureFlagService.getFeature(FeatureFlag.GROUP_SIZE_LIMIT_ENABLED.label, partitionId);
     }
 }
