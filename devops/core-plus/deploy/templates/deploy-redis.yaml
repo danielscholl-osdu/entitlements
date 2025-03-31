@@ -36,4 +36,13 @@ spec:
           requests:
             cpu: 5m
             memory: 15Mi
+      {{- if .Values.rosa }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 999
+      securityContext:
+        fsGroup: 999
+      serviceAccountName: {{ printf "redis-%s" .Values.conf.appName | quote }}
+        {{- end }}
 {{ end }}

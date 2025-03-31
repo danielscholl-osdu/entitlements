@@ -34,6 +34,12 @@ You need to set variables in **values.yaml** file using any code editor. Some of
 **global.limitsEnabled** | whether CPU and memory limits are enabled | boolean | true | yes
 **global.dataPartitionId** | partition ID | string | - | yes
 
+### Rosa flag
+
+| Name | Description | Type | Default |Required |
+|------|-------------|------|---------|---------|
+**rosa** | This flag enables configuration specific to ROSA environments | boolean | - | yes
+
 ### Configmap variables
 
 | Name | Description | Type | Default | Required |
