@@ -3,6 +3,9 @@ global:
   limitsEnabled: true
   dataPartitionId: ""
 
+# This flag enables configuration specific to ROSA environments.
+rosa: false 
+
 data:
   # Configmaps
   entitlementsHost: "http://entitlements"

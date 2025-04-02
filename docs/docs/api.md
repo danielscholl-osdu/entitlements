@@ -79,6 +79,7 @@ The member added can either be a _user_ or a _group_. E.g. group_email value is 
 Member body needs to have an email and role for a member. Member role can be OWNER or MEMBER. The user or service extracted from JWT in _Authorization_ header
 checked for OWNER role membership within group_email or within users.datalake.ops (ops user) group. In case the user is not ops user, it should be within service.entitlements.user
 or service.entitlements.admin group.
+* The feature flag `group-size-limit-enabled`, when set to `true`, enforces a size limit on groups, preventing the addition of new members once the limit is reached. The size limit can be configured using the `group.size.max` property, with a default value of 20,000 members per group.
 
 <details><summary>Curl Post Members</summary>
 
