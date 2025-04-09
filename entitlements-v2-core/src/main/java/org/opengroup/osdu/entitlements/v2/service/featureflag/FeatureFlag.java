@@ -4,7 +4,8 @@ public enum FeatureFlag {
     /**
      * Feature flag to control whether automatically adding users.data.root group as children to all data group
      */
-    DISABLE_DATA_ROOT_GROUP_HIERARCHY("disable-data-root-group-hierarchy");
+    DISABLE_DATA_ROOT_GROUP_HIERARCHY("disable-data-root-group-hierarchy"),
+    GROUP_SIZE_LIMIT_ENABLED("group-size-limit-enabled");
     public final String label;
 
     private FeatureFlag(String label) {
