@@ -12,7 +12,7 @@ Below you can find required variables to bootstrap Entitlements Service on Googl
   AIRFLOW_COMPOSER_EMAIL
 ```
 
-#***REMOVED*** specific variables
+## Google Cloud specific variables
 
 ```bash
   PROJECT_ID

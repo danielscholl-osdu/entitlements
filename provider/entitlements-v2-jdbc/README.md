@@ -85,7 +85,7 @@ Impersonation won't be allowed if
 
 [JDBC Documentation]: ../../docs/JDBC.md
 
-##***REMOVED*** Service Configuration
+### Google Cloud Service Configuration
 
 [Google Cloud service configuration](docs/gc/README.md)
 
@@ -116,7 +116,7 @@ java -Djava.security.egd=file:/dev/./urandom \
 
 In order to run integration tests, you need to have the following environment variables defined:
 
-##***REMOVED*** Service Configuration
+### Google Cloud Service Configuration
 
 [Google Cloud service configuration](docs/gc/README.md)
 
