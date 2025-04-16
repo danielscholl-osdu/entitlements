@@ -4,7 +4,7 @@ Official documentation can be found at [https://osdu.pages.opengroup.org/platfor
 ## Running the Entitlements Service locally
 The Entitlements Service is a Maven multi-module project with each cloud implemention placed in its submodule.
 
-#***REMOVED***
+## AWS
 
 Instructions for running and testing this service can be found [here](./provider/entitlements-v2-aws/README.md)
 
@@ -30,6 +30,6 @@ All the Swagger and OpenAPI related common properties are managed here [swagger.
 - default value is false (Currently only in Azure it is enabled)
 [Reference]:(https://springdoc.org/faq.html#_how_is_server_url_generated)
 
-##***REMOVED***
+### AWS
 
 Instructions for running the AWS integration tests can be found [here](./provider/entitlements-v2-aws/README.md).
