@@ -24,6 +24,8 @@ import org.opengroup.osdu.entitlements.v2.model.addmember.AddMemberServiceDto;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeAction;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeEvent;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeType;
+import org.opengroup.osdu.entitlements.v2.service.featureflag.FeatureFlag;
+import org.opengroup.osdu.entitlements.v2.service.featureflag.PartitionFeatureFlagService;
 import org.opengroup.osdu.entitlements.v2.service.util.ReflectionTestUtil;
 import org.opengroup.osdu.entitlements.v2.spi.addmember.AddMemberRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
@@ -61,6 +63,8 @@ public class AddMemberServiceTests {
     private DpsHeaders headers;
     @Mock
     private IEventPublisher publisher;
+    @Mock
+    private PartitionFeatureFlagService partitionFeatureFlagService;
     @InjectMocks
     private AddMemberService addMemberService;
 
@@ -72,9 +76,11 @@ public class AddMemberServiceTests {
         when(config.getDomain()).thenReturn("contoso.com");
         when(requestInfo.getHeaders()).thenReturn(headers);
         when(headers.getHeaders()).thenReturn(headersMap);
+        when(partitionFeatureFlagService.getFeature(eq(FeatureFlag.GROUP_SIZE_LIMIT_ENABLED.label), any())).thenReturn(true);
         PowerMockito.when(System.currentTimeMillis()).thenReturn(1291371330000L);
         ReflectionTestUtil.setFieldValueForClass(addMemberService, "eventPublishingEnabled", true);
         ReflectionTestUtil.setFieldValueForClass(addMemberService, "eventPublisher", publisher);
+        ReflectionTestUtil.setFieldValueForClass(addMemberService, "maxGroupSize", 20000);
     }
 
     @Test
@@ -123,6 +129,7 @@ public class AddMemberServiceTests {
         verify(groupCacheService).refreshListGroupCache(allImpactUsers, "common");
         verify(memberCacheService).flushListMemberCacheForGroup("data.x@common.contoso.com", "common");
         verify(publisher).publish(event, headersMap);
+        verify(partitionFeatureFlagService).getFeature(eq(FeatureFlag.GROUP_SIZE_LIMIT_ENABLED.label), any());
     }
 
     @Test
@@ -312,6 +319,41 @@ public class AddMemberServiceTests {
         } catch (AppException ex) {
             verify(addMemberRepo, never()).addMember(any(), any());
             assertThat(ex.getError().getCode()).isEqualTo(400);
+            verify(publisher, times(0)).publish(any(), any());
+        } catch (Exception ex) {
+            fail(String.format("should not throw exception: %s", ex.getMessage()));
+        }
+    }
+
+    @Test
+    public void should_throw412_ifGroupSizeQuotaHit_whenAddUser() {
+        ReflectionTestUtil.setFieldValueForClass(addMemberService, "maxGroupSize", 1);
+        EntityNode memberNode = EntityNode.builder().nodeId("memberid@xxx.com").name("memberid@xxx.com")
+            .type(NodeType.USER).dataPartitionId("common").build();
+        EntityNode groupNode = EntityNode.builder().nodeId("data.x@common.contoso.com").name("data.x")
+            .type(NodeType.GROUP).dataPartitionId("common").build();
+        EntityNode requesterNode = EntityNode.builder().nodeId("requesterid").name("requesterid").type(NodeType.USER).dataPartitionId("common").build();
+        when(retrieveGroupRepo.getEntityNode("memberid@xxx.com", "common")).thenReturn(Optional.of(memberNode));
+        when(retrieveGroupRepo.groupExistenceValidation("data.x@common.contoso.com", "common")).thenReturn(groupNode);
+        when(retrieveGroupRepo.getEntityNode("requesterid", "common")).thenReturn(Optional.of(requesterNode));
+        when(retrieveGroupRepo.groupExistenceValidation("users.x@common.contoso.com", "common")).thenReturn(groupNode);
+        when(retrieveGroupRepo.hasDirectChild(groupNode, ChildrenReference.createChildrenReference(requesterNode, Role.OWNER))).thenReturn(Boolean.TRUE);
+        when(memberCacheService.getFromPartitionCache("data.x@common.contoso.com", "common")).thenReturn(List.of(new ChildrenReference()));
+
+        try {
+            AddMemberDto addMemberDto = new AddMemberDto("memberid@xxx.com", Role.MEMBER);
+            AddMemberServiceDto addMemberServiceDto = AddMemberServiceDto.builder()
+                .groupEmail("data.x@common.contoso.com")
+                .requesterId("requesterid")
+                .partitionId("common")
+                .build();
+
+            addMemberService.run(addMemberDto, addMemberServiceDto);
+            fail("should throw exception");
+        } catch (AppException ex) {
+            verify(addMemberRepo, never()).addMember(any(), any());
+            assertThat(ex.getError().getCode()).isEqualTo(412);
+            assertThat(ex.getMessage()).isEqualTo("Identity memberid@xxx.com cannot be added to the group data.x@common.contoso.com, the group has reached its size quota of 1 members");
             verify(publisher, times(0)).publish(any(), any());
         } catch (Exception ex) {
             fail(String.format("should not throw exception: %s", ex.getMessage()));
