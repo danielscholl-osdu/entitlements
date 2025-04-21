@@ -50,6 +50,15 @@
     },
     {
       "groupName": "users.datalake.delegation"
+    },
+    {
+      "groupName": "service.edsdms.user"
+    },
+    {
+      "groupName": "service.secret.viewer"
+    },
+    {
+      "groupName": "service.secret.editor"
     }
   ]
 }
