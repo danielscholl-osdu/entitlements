@@ -39,6 +39,26 @@
         <maven.compiler.target>17</maven.compiler.target>
         <guava.version>32.1.2-jre</guava.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>3.3.11</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>4.1.119.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -97,7 +117,12 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
-            <version>4.1.118.Final</version>
+            <version>4.1.119.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.1.119.Final</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -149,7 +174,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http2</artifactId>
-            <version>4.1.118.Final</version>
+            <version>4.1.119.Final</version>
         </dependency>
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
@@ -204,19 +229,7 @@
         </dependency>
         <!-- endregion -->
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <!-- https://mvnrepository.com/artifact/io.netty/netty-bom -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-bom</artifactId>
-                <version>4.1.118.Final</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
-        </dependencies>
-    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
