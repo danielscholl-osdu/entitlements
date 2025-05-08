@@ -37,16 +37,16 @@ public abstract class AddMemberTest extends AcceptanceBaseTest {
                 .groupEmail(groupItem.getEmail()).role("OWNER").memberEmail(ownerMemberEmail).build();
         entitlementsV2Service.addMember(addOwnerMemberRequestData, token.getValue());
 
-        AddMemberRequestData addMemberRequestData = AddMemberRequestData.builder()
-                .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(memberEmail).build();
-        entitlementsV2Service.addMember(addMemberRequestData, token.getValue());
-
-        verifyConflictError(addMemberRequestData, token.getValue());
-
         GroupItem childGroupItem = entitlementsV2Service.createGroup(childGroupName, token.getValue());
         AddMemberRequestData addGroupMemberRequestData = AddMemberRequestData.builder()
                 .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(childGroupItem.getEmail()).build();
         entitlementsV2Service.addMember(addGroupMemberRequestData, token.getValue());
+
+        AddMemberRequestData addMemberRequestData = AddMemberRequestData.builder()
+                .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(memberEmail).build();
+        entitlementsV2Service.addMember(addMemberRequestData, token.getValue());
+        verifyConflictError(addMemberRequestData, token.getValue());
+
         ListMemberResponse listMemberResponse = entitlementsV2Service.getMembers(groupItem.getEmail(), token.getValue());
 
         Assert.assertEquals(4, listMemberResponse.getMembers().size());
