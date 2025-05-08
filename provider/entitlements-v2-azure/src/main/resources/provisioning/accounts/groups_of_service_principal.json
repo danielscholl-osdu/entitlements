@@ -97,6 +97,12 @@
       "groupName": "service.policy.admin"
     },
     {
+      "groupName": "service.reservoir-dms.viewers"
+    },
+    {
+      "groupName": "service.reservoir-dms.owners"
+    },
+    {
       "groupName": "service.secret.viewer"
     },
     {
