@@ -41,6 +41,10 @@ bootstrap_entitlements_gc_system_partition() {
 {
 "aliasId": "SERVICE_PRINCIPAL_GCZ",
 "userId": "wi-gcz-gc@${PROJECT_ID}.iam.gserviceaccount.com"
+},
+{
+"aliasId": "SERVICE_PRINCIPAL_SCHEMA_UPGRADE",
+"userId": "wi-schema-upgrade-gc@${PROJECT_ID}.iam.gserviceaccount.com"
 }
 ]
 }
@@ -104,6 +108,10 @@ cat <<EOF >/opt/other-partition-config.json
 {
 "aliasId": "SERVICE_PRINCIPAL_GCZ",
 "userId": "wi-gcz-gc@${PROJECT_ID}.iam.gserviceaccount.com"
+},
+{
+"aliasId": "SERVICE_PRINCIPAL_SCHEMA_UPGRADE",
+"userId": "wi-schema-upgrade-gc@${PROJECT_ID}.iam.gserviceaccount.com"
 }
 ]
 }
