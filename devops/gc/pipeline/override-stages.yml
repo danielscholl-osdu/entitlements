@@ -8,10 +8,6 @@ variables:
   GC_VENDOR: jdbc
   GC_HELM_TIMEOUT: "--timeout 10m"
 
-gc-preship-deploy:
-  variables:
-    GC_TENANT: m19 #FIXME: update variable after the m24 release
-
 download_gc_plugins:
   image: maven:3.8.3-openjdk-17-slim
   stage: build
