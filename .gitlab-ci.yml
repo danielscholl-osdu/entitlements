@@ -21,7 +21,7 @@ variables:
   MONGODB_AWS_ENVIRONMENT: dev
   MONGODB_AWS_DEPLOY_TARGET: TF
   MONGODB_AWS_EKS_DEPLOYMENT_NAME: os-entitlements
- 
+
   IBM_BUILD_SUBDIR: provider/entitlements-v2-ibm
   IBM_INT_TEST_SUBDIR: testing/entitlements-v2-test-ibm
   IBM_HELM_CONFIG_PATH: devops/ibm/ibm-entitlement-config
@@ -85,7 +85,7 @@ include:
 
 .maven:
   image: maven:3.9.3-eclipse-temurin-17
-  tags: ['osdu-medium']
+  tags: ["osdu-medium"]
   variables:
     MAVEN_REPO_PATH: "$CI_PROJECT_DIR/.m2/repository"
     MAVEN_CLI_OPTS: "--batch-mode --settings=$CI_PROJECT_DIR/.mvn/community-maven.settings.xml"
@@ -150,7 +150,6 @@ include:
               sys.stdout.write(dir + '\0')
       EOF
     - xargs -0rn 1 echo < $ALL_MAVEN_BUILD_DIRS_Z
-
     # This creates a script for running maven, capturing output to a file.
     # - First argument is the directory to build from
     # - Second argument is the name to use for the logfile
