@@ -1,0 +1,356 @@
+name: Complete Initialization
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  validate_and_setup:
+    name: Validate and setup repository
+    if: |
+      github.event.issue.state == 'open' &&
+      contains(github.event.issue.labels.*.name, 'initialization')
+    runs-on: ubuntu-latest
+    outputs:
+      upstream_repo: ${{ steps.validate.outputs.upstream_repo }}
+      should_proceed: ${{ steps.validate.outputs.should_proceed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate repository input
+        id: validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the comment body and clean it
+          COMMENT="${{ github.event.comment.body }}"
+          REPO=$(echo "$COMMENT" | tr -d '[:space:]' | head -1)
+          
+          echo "Processing comment: $REPO"
+          
+          # Validate repository format
+          if [[ "$REPO" == http* ]]; then
+            # GitLab URL format validation
+            if ! [[ "$REPO" =~ ^https?://[^/]+/[^/]+/[^/]+(/.*)?$ ]]; then
+              echo "❌ Invalid GitLab URL format: $REPO" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+              echo "should_proceed=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          else
+            # GitHub owner/repo format validation
+            if ! [[ "$REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+              echo "❌ Invalid repository format. Expected 'owner/repo' but got '$REPO'" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+              echo "should_proceed=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+          
+          echo "upstream_repo=$REPO" >> $GITHUB_OUTPUT
+          echo "should_proceed=true" >> $GITHUB_OUTPUT
+          
+          # Post confirmation
+          cat << EOF | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          ✅ **Repository validated:** \`$REPO\`
+
+          🔄 **Starting initialization process...**
+
+          This will take a few minutes. I'll update you with progress!
+          EOF
+
+  setup_repository:
+    name: Setup repository structure
+    needs: validate_and_setup
+    if: needs.validate_and_setup.outputs.should_proceed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config pull.rebase false
+
+      - name: Setup upstream repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPSTREAM_REPO: ${{ needs.validate_and_setup.outputs.upstream_repo }}
+        run: |
+          echo "🔧 **Setting up upstream connection...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          # Convert to URL format
+          if [[ "$UPSTREAM_REPO" == http* ]]; then
+            REPO_URL="$UPSTREAM_REPO.git"
+          else
+            REPO_URL="https://github.com/$UPSTREAM_REPO.git"
+          fi
+          
+          # Add upstream remote
+          git remote add upstream $REPO_URL
+          git fetch upstream --prune --tags
+          
+          # List available branches for debugging
+          echo "🔍 **Checking available branches in upstream repository...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          # Get all branches from upstream
+          BRANCHES=$(git branch -r | grep upstream | sed 's/upstream\///' | grep -v HEAD | tr '\n' ' ')
+          echo "Available branches: $BRANCHES"
+          
+          # Determine default branch
+          if git rev-parse --verify upstream/main >/dev/null 2>&1; then
+            DEFAULT_BRANCH="main"
+          elif git rev-parse --verify upstream/master >/dev/null 2>&1; then
+            DEFAULT_BRANCH="master"
+          else
+            # Try to detect default branch from HEAD
+            DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/upstream/HEAD 2>/dev/null | sed 's@^refs/remotes/upstream/@@')
+            
+            if [ -z "$DEFAULT_BRANCH" ]; then
+              # Last resort: check common branch names
+              for branch in develop development prod production release stable; do
+                if git rev-parse --verify upstream/$branch >/dev/null 2>&1; then
+                  DEFAULT_BRANCH="$branch"
+                  break
+                fi
+              done
+            fi
+            
+            if [ -z "$DEFAULT_BRANCH" ]; then
+              echo "❌ **Error:** Could not determine default branch in upstream repository" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+              echo "Available branches found: $BRANCHES" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+              echo "Please ensure the upstream repository has at least one branch." | gh issue comment "${{ github.event.issue.number }}" --body-file -
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Using default branch: $DEFAULT_BRANCH" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          echo "DEFAULT_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
+          echo "UPSTREAM_URL=$REPO_URL" >> $GITHUB_ENV
+
+      - name: Create branch structure
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🌿 **Creating branch structure...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          # Check if this is an OSDU partition repository
+          if [[ "${{ needs.validate_and_setup.outputs.upstream_repo }}" == *"partition"* ]]; then
+            echo "📋 **Detected OSDU partition repository - checking for release branches...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+            
+            # List release branches for OSDU repos
+            RELEASE_BRANCHES=$(git branch -r | grep upstream/release | sed 's/upstream\///' | tr '\n' ', ')
+            if [ -n "$RELEASE_BRANCHES" ]; then
+              echo "Found release branches: $RELEASE_BRANCHES" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+            fi
+          fi
+          
+          # Create fork_upstream from upstream's default branch
+          git checkout -b fork_upstream upstream/$DEFAULT_BRANCH
+          git push -u origin fork_upstream
+          
+          # Create fork_integration from fork_upstream
+          git checkout -b fork_integration fork_upstream
+          
+          # Add workflow env file
+          mkdir -p .github
+          echo "INITIALIZATION_COMPLETE=true" > .github/workflow.env
+          echo "UPSTREAM_REPO_URL=$UPSTREAM_URL" >> .github/workflow.env
+          
+          # Copy essential files from main branch
+          git checkout main -- .github/workflows/ .github/actions/ .github/dependabot.yml || true
+          
+          git add .github
+          git commit -m "chore: add workflow environment and copy workflows"
+          git push -u origin fork_integration
+
+      - name: Merge to main and setup secrets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "🔀 **Updating main branch...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          # Merge fork_integration into main with conflict resolution
+          git checkout main
+          
+          # Try merge with unrelated histories, preferring fork_integration changes
+          if ! git merge fork_integration --allow-unrelated-histories --no-ff -X theirs -m "chore: complete repository initialization"; then
+            echo "⚠️ **Merge conflicts detected, resolving automatically...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+            
+            # If there are still conflicts even with -X theirs, explicitly take fork_integration version
+            git status --porcelain | grep -E '^(DD|AU|UD|UA|DU|AA|UU)' | cut -c4- | while read -r file; do
+              echo "Resolving conflict in $file - using upstream version"
+              # Use the version from fork_integration (which comes from upstream)
+              git checkout --theirs "$file"
+              git add "$file"
+            done
+            
+            # Complete the merge
+            git commit -m "chore: complete repository initialization (conflicts resolved using upstream versions)"
+          fi
+          
+          git push origin main
+          
+          # Clean up template files immediately after merge, before branch protection
+          echo "🧹 **Cleaning up template documentation...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          # Remove template-specific documentation and files
+          rm -rf doc/
+          rm -f .github/copilot-instructions.md
+          rm -f CLAUDE.md
+          rm -rf .claude/
+          
+          # Note: The upstream repository's README will be used after merge
+          # No need to create a new README as upstream content will take precedence
+          
+          # Commit cleanup changes
+          git add -A
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: clean up template files after initialization"
+            git push origin main
+          fi
+          
+          # Store upstream repo URL as secret using PAT if available
+          if [ -n "$GH_TOKEN" ]; then
+            echo "🔐 **Setting repository secret using Personal Access Token...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+            GH_TOKEN=$GH_TOKEN gh secret set UPSTREAM_REPO_URL --body "$UPSTREAM_URL"
+          else
+            echo "⚠️ **Warning:** Unable to set UPSTREAM_REPO_URL secret. Please set it manually or provide a GH_TOKEN secret with appropriate permissions." | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          fi
+
+      - name: Configure branch protection
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "🛡️ **Setting up branch protection...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          # Try to create branch protection rules
+          if [ -n "$GH_TOKEN" ]; then
+            # Use PAT for branch protection
+            for branch in main fork_upstream fork_integration; do
+              GH_TOKEN=$GH_TOKEN gh api \
+                --method PUT \
+                -H "Accept: application/vnd.github.v3+json" \
+                "/repos/${{ github.repository }}/branches/$branch/protection" \
+                --input - << 'EOF' || echo "⚠️ Failed to protect branch $branch"
+          {
+            "required_status_checks": {
+              "strict": true,
+              "contexts": []
+            },
+            "enforce_admins": false,
+            "required_pull_request_reviews": {
+              "required_approving_review_count": 1,
+              "dismiss_stale_reviews": true
+            },
+            "restrictions": null,
+            "allow_force_pushes": false,
+            "allow_deletions": false
+          }
+          EOF
+            done
+          else
+            echo "⚠️ **Warning:** Unable to set branch protection rules. Please configure manually or provide a GH_TOKEN secret with appropriate permissions." | gh issue comment "${{ github.event.issue.number }}" --body-file -
+            echo "To set up branch protection manually, go to Settings → Branches for each of: main, fork_upstream, fork_integration" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          fi
+
+      - name: Enable security features
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "🔒 **Enabling security features...**" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          
+          # Enable security features if possible
+          if [ -f .github/security-on.json ]; then
+            if [ -n "$GH_TOKEN" ]; then
+              GH_TOKEN=$GH_TOKEN gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github.v3+json" \
+                "/repos/${{ github.repository }}" \
+                --input .github/security-on.json || echo "⚠️ Some security features may require manual configuration"
+            else
+              echo "⚠️ **Note:** Security features require manual configuration. Go to Settings → Security & analysis" | gh issue comment "${{ github.event.issue.number }}" --body-file -
+            fi
+          fi
+
+      - name: Update README status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Update README to remove initialization status if it still exists
+          git pull origin main
+          if grep -q "Repository Status: Initialization Required" README.md; then
+            # Remove the initialization status section
+            sed -i '/## 🔄 Repository Status: Initialization Required/,/---/d' README.md
+            
+            git add README.md
+            git commit -m "docs: remove initialization status from README"
+            git push origin main
+          fi
+          
+          # Post completion message and close issue
+          # Check what was actually configured
+          if [ -n "$GH_TOKEN" ]; then
+            PROTECTION_STATUS="✅ **Branch Protection:** All branches are protected with PR requirements"
+            SECRET_STATUS="✅ **Repository Secret:** UPSTREAM_REPO_URL configured"
+            SECURITY_STATUS="✅ **Security Features:** Secret scanning and dependency updates enabled"
+          else
+            PROTECTION_STATUS="⚠️ **Branch Protection:** Manual configuration required (Settings → Branches)"
+            SECRET_STATUS="⚠️ **Repository Secret:** Manual configuration required (Settings → Secrets → Actions)"
+            SECURITY_STATUS="⚠️ **Security Features:** Manual configuration required (Settings → Security & analysis)"
+          fi
+          
+          cat << EOF | gh issue comment "${{ github.event.issue.number }}" --body-file -
+          🎉 **Initialization Complete!**
+
+          Your fork management repository is now ready! Here's what was set up:
+
+          ✅ **Branch Structure:**
+          - \`main\` - Your stable development branch
+          - \`fork_upstream\` - Tracks upstream changes
+          - \`fork_integration\` - Integration and conflict resolution
+
+          $PROTECTION_STATUS
+
+          ✅ **Upstream Connection:** Connected to \`${{ needs.validate_and_setup.outputs.upstream_repo }}\`
+
+          ✅ **Automated Workflows:** Sync, validation, and release workflows are active
+
+          ✅ **Template Cleanup:** Removed template documentation (upstream README will be used)
+
+          $SECRET_STATUS
+
+          $SECURITY_STATUS
+
+          ## Next Steps
+
+          1. **Review the workflows** in the Actions tab
+          2. **Customize the README** with your project-specific information
+          3. **Start developing** by creating feature branches from \`main\`
+          4. **Sync with upstream** will happen automatically via the sync workflow
+
+          **Happy coding!** 🚀
+          EOF
+          
+          gh issue close "${{ github.event.issue.number }}" --reason completed

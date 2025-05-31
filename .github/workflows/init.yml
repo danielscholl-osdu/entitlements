@@ -1,0 +1,221 @@
+name: Initialize Fork
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+env:
+  TEMPLATE_NAME: "OSDU Fork Management Template"
+  INTRO_MESSAGE: "Welcome to the OSDU Fork Management Template! 🚀 This template will help you maintain a long-lived fork of an upstream OSDU repository with automated synchronization and release management. Let's get started! 💻✨"
+
+jobs:
+  check_template:
+    name: Check if template repository
+    runs-on: ubuntu-latest
+    outputs:
+      is_template: ${{ steps.check.outputs.is_template }}
+    steps:
+      - name: Check repository type
+        id: check
+        run: |
+          echo "Repository is template: ${{ github.event.repository.is_template }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Repository: ${{ github.repository }}"
+          
+          if [[ "${{ github.event.repository.is_template }}" == "true" ]]; then
+            echo "is_template=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_template=false" >> $GITHUB_OUTPUT
+          fi
+
+  check_initialization:
+    name: Check initialization status
+    needs: check_template
+    if: needs.check_template.outputs.is_template == 'false'
+    runs-on: ubuntu-latest
+    outputs:
+      already_initialized: ${{ steps.check.outputs.already_initialized }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if already initialized
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check for workflow.env first (primary indicator)
+          if [ -f ".github/workflow.env" ]; then
+            echo "Repository already initialized (workflow.env exists)"
+            echo "already_initialized=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check if initialization issue already exists
+          ISSUE_COUNT=$(gh issue list --label "initialization" --json number --jq 'length')
+          if [ "$ISSUE_COUNT" != "0" ]; then
+            echo "Initialization issue already exists"
+            echo "already_initialized=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check if all branches exist (secondary check)
+          if git rev-parse --verify origin/main >/dev/null 2>&1 && \
+             git rev-parse --verify origin/fork_upstream >/dev/null 2>&1 && \
+             git rev-parse --verify origin/fork_integration >/dev/null 2>&1; then
+            echo "All required branches exist"
+            echo "already_initialized=true" >> $GITHUB_OUTPUT
+          else
+            echo "Repository needs initialization"
+            echo "already_initialized=false" >> $GITHUB_OUTPUT
+          fi
+
+  create_initialization_issue:
+    name: Create initialization issue
+    needs: [check_template, check_initialization]
+    if: |
+      needs.check_template.outputs.is_template == 'false' && 
+      needs.check_initialization.outputs.already_initialized == 'false'
+    runs-on: ubuntu-latest
+    outputs:
+      issue-url: ${{ steps.create-issue.outputs.ISSUE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Git user
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+
+      - name: Create initialization label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create initialization \
+            --description "Issues related to repository initialization" \
+            --color "0366d6" || true
+
+      - name: Build welcome message
+        id: build-issue-description
+        run: |
+          cat << 'EOF' > welcome.md
+          # 🚀 Welcome to the OSDU Fork Management Template!
+
+          Thank you for creating a repository from the **${{ env.TEMPLATE_NAME }}**! 
+
+          ${{ env.INTRO_MESSAGE }}
+
+          ## Next Steps
+
+          To complete the initialization of your fork management repository, please provide the upstream repository you want to fork from.
+
+          ### Supported Formats
+
+          **GitHub Repository:**
+          ```
+          owner/repository-name
+          ```
+          Example: `microsoft/OSDU` or `Azure/osdu-infrastructure`
+
+          **GitLab Repository:**
+          ```
+          https://gitlab.company.com/group/repository-name
+          ```
+
+          ### Instructions
+
+          1. **Reply to this issue** with just the repository reference (one of the formats above)
+          2. The automation will validate your input and begin the setup process
+          3. You'll receive updates as the initialization progresses
+          4. Once complete, this issue will be automatically closed
+
+          ### What happens during initialization?
+
+          - ✅ Configure the three-branch structure (`main`, `fork_upstream`, `fork_integration`)
+          - ✅ Set up branch protection rules
+          - ✅ Configure upstream repository connection
+          - ✅ Enable automated sync workflows
+          - ✅ Set up security scanning and dependabot
+
+          ---
+          
+          **Ready to get started?** Just reply with your upstream repository! 🎯
+          EOF
+
+      - name: Create initialization issue
+        id: create-issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          issue_url=$(gh issue create \
+            --title "🚀 Repository Initialization Required" \
+            --body-file welcome.md \
+            --label "initialization")
+          echo "ISSUE_URL=$issue_url" >> "$GITHUB_OUTPUT"
+          echo "Created initialization issue: $issue_url"
+
+      - name: Add monitoring comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{ steps.create-issue.outputs.ISSUE_URL }}
+        run: |
+          gh issue comment "$ISSUE_URL" \
+            --body "👀 **Monitoring for your response...** Once you provide the upstream repository, initialization will begin automatically!"
+
+  update_readme:
+    name: Update README
+    needs: [check_template, check_initialization, create_initialization_issue]
+    if: |
+      needs.check_template.outputs.is_template == 'false' && 
+      needs.check_initialization.outputs.already_initialized == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git user
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+
+      - name: Update README with initialization status
+        run: |
+          # Add initialization status to README
+          if ! grep -q "Repository Status" README.md; then
+            cat << 'EOF' > temp_readme.md
+          # Fork Management Template
+
+          ## 🔄 Repository Status: Initialization Required
+
+          **This repository was created from a template and needs to be initialized.**
+
+          ➡️ **[Complete Initialization Here](../../issues?q=is%3Aissue+is%3Aopen+label%3Ainitialization)** ⬅️
+
+          ---
+
+          EOF
+            # Append the rest of the README
+            tail -n +2 README.md >> temp_readme.md
+            mv temp_readme.md README.md
+          fi
+
+      - name: Commit README changes
+        run: |
+          git add README.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: add initialization status to README"
+            git push
+          fi
