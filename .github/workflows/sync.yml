@@ -1,0 +1,212 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  Sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.49.1
+
+      - name: Setup Python and PR Generator
+        run: |
+          python -m pip install --upgrade pip
+          pip install pr-generator-agent
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add upstream remote using stored secret
+          git remote add upstream "${{ secrets.UPSTREAM_REPO_URL }}"
+
+      - name: Fetch latest from upstream
+        run: |
+          # Fetch latest from upstream
+          git fetch upstream --prune
+
+          # Determine default branch
+          if git rev-parse --verify upstream/main >/dev/null 2>&1; then
+            DEFAULT_BRANCH="main"
+          elif git rev-parse --verify upstream/master >/dev/null 2>&1; then
+            DEFAULT_BRANCH="master"
+          else
+            echo "::error::Could not find main or master branch in upstream"
+            exit 1
+          fi
+          echo "DEFAULT_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
+
+      - name: Create required labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          # Create labels if they don't exist
+          gh label create sync-failed \
+            --description "Issues related to sync failures" \
+            --color "d73a4a" || true
+            
+          gh label create needs-resolution \
+            --description "Requires manual conflict resolution" \
+            --color "fbca04" || true
+            
+          gh label create sync-update \
+            --description "Tracks upstream sync updates" \
+            --color "0075ca" || true
+
+      - name: Create sync branch and PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
+          AZURE_API_BASE: ${{ secrets.AZURE_API_BASE }}
+          AZURE_API_VERSION: ${{ secrets.AZURE_API_VERSION }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # Generate branch names with timestamp for uniqueness
+          DATE_SUFFIX=$(date +%Y%m%d-%H%M%S)
+          SYNC_BRANCH="sync/upstream-${DATE_SUFFIX}"
+          
+          # Fetch and checkout fork_upstream branch
+          git fetch origin fork_upstream
+          git checkout -b fork_upstream origin/fork_upstream
+
+          # Create a new branch for the sync
+          git checkout -b $SYNC_BRANCH
+          
+          # Try to merge upstream changes, automatically preferring upstream versions on conflict
+          git merge upstream/$DEFAULT_BRANCH -X theirs --no-edit
+          
+          # Check if there are any changes to commit
+          if git diff --quiet fork_upstream; then
+            echo "No changes to sync from upstream"
+            exit 0
+          fi
+          
+          # Push changes with force flag to handle any branch name conflicts
+          git push -f origin $SYNC_BRANCH
+
+          # Get upstream version for PR description
+          UPSTREAM_VERSION=$(git describe --tags --abbrev=0 upstream/$DEFAULT_BRANCH 2>/dev/null || echo "latest")
+          
+          # Get the changes for the PR description
+          CHANGES=$(git log --pretty=format:"* %s" fork_upstream..$SYNC_BRANCH)
+          
+          # Check if any LLM API key is available for enhanced PR description
+          USE_LLM=false
+          LLM_MODEL=""
+          
+          # Check for Anthropic API key (default)
+          if [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            USE_LLM=true
+            LLM_MODEL="claude-4"
+            echo "Using Anthropic Claude 3.5 Sonnet for PR description generation"
+            echo "USE_LLM=true" >> $GITHUB_ENV
+          # Check for Azure OpenAI API key
+          elif [[ -n "$AZURE_API_KEY" && -n "$AZURE_API_BASE" ]]; then
+            USE_LLM=true
+            LLM_MODEL="azure/gpt-4o"
+            echo "Using Azure OpenAI GPT-4o for PR description generation"
+            echo "USE_LLM=true" >> $GITHUB_ENV
+          # Check for OpenAI API key
+          elif [[ -n "$OPENAI_API_KEY" ]]; then
+            USE_LLM=true
+            LLM_MODEL="gpt-4.1"
+            echo "Using OpenAI GPT-4 for PR description generation"
+            echo "USE_LLM=true" >> $GITHUB_ENV
+          else
+            echo "No LLM API keys found. Using default PR description."
+            echo "USE_LLM=false" >> $GITHUB_ENV
+          fi
+          
+          # Calculate diff size to avoid generating prompts that exceed model limits
+          MAX_DIFF_LINES=20000
+          DIFF_LINES=$(git diff fork_upstream | wc -l | tr -d ' ')
+          # Ensure DIFF_LINES is a valid numeric value
+          if [[ -z "$DIFF_LINES" || ! "$DIFF_LINES" =~ ^[0-9]+$ ]]; then
+            DIFF_LINES=0
+          fi
+          echo "Diff contains $DIFF_LINES lines"
+
+          if [[ -n "$LLM_MODEL" && "$DIFF_LINES" -le "$MAX_DIFF_LINES" ]]; then
+            # Generate PR description using aipr
+            echo "Generating PR description using $LLM_MODEL..."
+            # Save current branch and target for reference
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            TARGET_BRANCH="fork_upstream"
+
+            # Use the aipr tool with the --vulns flag and diff limit parameter
+            PR_DESCRIPTION=$(aipr -t $TARGET_BRANCH --vulns -p meta -m $LLM_MODEL --max-diff-lines $MAX_DIFF_LINES)
+
+            echo "Generated enhanced PR description using $LLM_MODEL"
+          else
+            if [[ "$DIFF_LINES" -gt "$MAX_DIFF_LINES" ]]; then
+              echo "Diff is larger than $MAX_DIFF_LINES lines; skipping aipr description"
+            fi
+            # Use default PR description
+            PR_DESCRIPTION="Automated PR to sync with upstream repository changes.
+
+            ### Changes from upstream:
+            ${CHANGES}"
+            echo "Using default PR description"
+          fi
+          
+          # Create PR with description
+          echo "Creating PR from branch $SYNC_BRANCH to fork_upstream"
+          PR_URL=$(gh pr create \
+            --base fork_upstream \
+            --head $SYNC_BRANCH \
+            --title "⬆️ Sync with upstream $UPSTREAM_VERSION" \
+            --body "${PR_DESCRIPTION}")
+          
+          echo "PR created: $PR_URL"
+          
+          # Extract PR number with simple string manipulation
+          PR_NUMBER=$(basename $PR_URL)
+          echo "PR number: $PR_NUMBER"
+            
+          # Create a linked issue with basic content
+          echo "Creating linked issue for PR #$PR_NUMBER"
+          gh issue create \
+            --title "🔄 Upstream Sync - $(date +%Y-%m-%d)" \
+            --body "This issue tracks the upstream sync PR #$PR_NUMBER and will close automatically when the PR is merged." \
+            --label "sync-update"
+
+      - name: Create issue on failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          ISSUE_BODY="The automated upstream sync workflow failed.
+
+          ### Error Details
+          Please check the workflow logs for more information:
+          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          ### Manual Steps Required
+          1. Review the error logs
+          2. Resolve any conflicts
+          3. Re-run the sync workflow
+
+          @${{ github.repository_owner }}"
+
+          gh issue create \
+            --title "🔄 Upstream Sync Failed $(date +%Y-%m-%d)" \
+            --body "$ISSUE_BODY" \
+            --label "sync-failed"
