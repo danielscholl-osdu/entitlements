@@ -1,5 +1,14 @@
 # Fork Management Template
 
+## 🔄 Repository Status: Initialization Required
+
+**This repository was created from a template and needs to be initialized.**
+
+➡️ **[Complete Initialization Here](../../issues?q=is%3Aissue+is%3Aopen+label%3Ainitialization)** ⬅️
+
+---
+
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub Issues](https://img.shields.io/github/issues/danielscholl-osdu/osdu-fork-template)](https://github.com/danielscholl-osdu/osdu-fork-template/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/danielscholl-osdu/osdu-fork-template/pulls)
