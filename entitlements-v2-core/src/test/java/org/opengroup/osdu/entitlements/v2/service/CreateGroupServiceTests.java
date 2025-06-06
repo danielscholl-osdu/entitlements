@@ -28,9 +28,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -238,5 +239,48 @@ public class CreateGroupServiceTests {
         assertThat(captor.getValue().getDataRootGroupNode()).isNull();
         assertThat(captor.getValue().isAddDataRootGroup()).isFalse();
         verify(groupCacheService).refreshListGroupCache(impactedUsers, "dp");
+    }
+
+    @Test
+    public void shouldThrowConflictIfGroupIsAlreadyParentOfRequester() {
+        String groupNodeId = "data.x@dp.domain.com";
+        String requesterId = "callerdesid";
+        String partitionId = "dp";
+
+        // The group we are trying to create
+        EntityNode groupNode = EntityNode.builder()
+                .nodeId(groupNodeId)
+                .type(NodeType.GROUP)
+                .name("data.x")
+                .dataPartitionId(partitionId)
+                .build();
+
+        // Simulate that this group is already a parent of the requester
+        ParentReference matchingParent = ParentReference.builder()
+                .id(groupNodeId)
+                .build();
+
+        Set<ParentReference> parents = new HashSet<>(Collections.singletonList(matchingParent));
+        // Mock the cache to return the parent group
+        when(groupCacheService.getFromPartitionCache(requesterId, partitionId)).thenReturn(parents);
+
+        CreateGroupServiceDto createGroupServiceDto = CreateGroupServiceDto.builder()
+                .requesterId(requesterId)
+                .partitionDomain("dp.domain.com")
+                .partitionId(partitionId)
+                .build();
+
+        boolean exceptionThrown = false;
+        try {
+            createGroupService.run(groupNode, createGroupServiceDto);
+        } catch (AppException ex) {
+            exceptionThrown = true;
+            assertEquals(409, ex.getError().getCode());
+            assertTrue(ex.getError().getMessage().contains("This group already exists"));
+        }
+
+        assertTrue("Expected AppException to be thrown", exceptionThrown);
+        verify(createGroupRepo, times(0)).createGroup(any(), any());
+        verify(groupCacheService, times(0)).refreshListGroupCache(any(), any());
     }
 }
