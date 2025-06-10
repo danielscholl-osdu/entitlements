@@ -99,7 +99,7 @@ The following software have components provided under the terms of this license:
 - Awaitility (from http://awaitility.org)
 - Awaitility Proxy (from http://awaitility.org)
 - BSON (from http://bsonspec.org, https://bsonspec.org)
-- BSON Record Codec (from <https://www.mongodb.com/>, https://www.mongodb.com/)
+- BSON Record Codec (from <https://www.mongodb.com/>, https://bsonspec.org, https://www.mongodb.com/)
 - Byte Buddy (without dependencies) (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
 - Byte Buddy Java agent (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent)
 - ClassMate (from http://github.com/cowtowncoder/java-classmate)

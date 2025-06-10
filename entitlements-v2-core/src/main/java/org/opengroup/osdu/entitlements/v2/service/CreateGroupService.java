@@ -32,43 +32,66 @@ public class CreateGroupService {
     private final PartitionFeatureFlagService partitionFeatureFlagService;
 
     public EntityNode run(EntityNode groupNode, CreateGroupServiceDto createGroupServiceDto) {
-        log.debug(String.format("requested by %s", createGroupServiceDto.getRequesterId()));
-        EntityNode requesterNode = EntityNode.createMemberNodeForRequester(createGroupServiceDto.getRequesterId(), createGroupServiceDto.getPartitionId());
-        Set<ParentReference> allExistingParents = groupCacheService.getFromPartitionCache(requesterNode.getNodeId(), createGroupServiceDto.getPartitionId());
-        if (allExistingParents.size() >= EntityNode.MAX_PARENTS) {
-            log.error(String.format("Identity %s already belong to %d groups", createGroupServiceDto.getRequesterId(), allExistingParents.size()));
-            throw new AppException(HttpStatus.PRECONDITION_FAILED.value(), HttpStatus.PRECONDITION_FAILED.getReasonPhrase(), String.format("Identity %s cannot be added to the group %s, as it has reached its group quota of %d groups", createGroupServiceDto.getRequesterId(), groupNode.getNodeId(), EntityNode.MAX_PARENTS));
+        String groupNodeId = groupNode.getNodeId();
+        String partitionId = createGroupServiceDto.getPartitionId();
+        String requesterId = createGroupServiceDto.getRequesterId();
+
+        log.debug(String.format("requested by %s", requesterId));
+        EntityNode requesterNode = EntityNode.createMemberNodeForRequester(requesterId, partitionId);
+        Set<ParentReference> allExistingParentsOfRequester = groupCacheService.getFromPartitionCache(requesterId, partitionId);
+
+        boolean isGroupParentOfRequester = allExistingParentsOfRequester.stream().anyMatch(parent -> groupNodeId.equalsIgnoreCase(parent.getId()));
+
+        if (isGroupParentOfRequester) {
+            throw new AppException(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                "This group already exists");
         }
-        if (this.shouldAddDataRootGroupInTheHierarchy(createGroupServiceDto.getPartitionId(), groupNode)) {
-            EntityNode dataRootGroupNode = retrieveGroupRepo.groupExistenceValidation(String.format(EntityNode.ROOT_DATA_GROUP_EMAIL_FORMAT, createGroupServiceDto.getPartitionDomain()), createGroupServiceDto.getPartitionId());
+
+        this.validateGroupMembershipLimit(requesterId, allExistingParentsOfRequester.size(), EntityNode.MAX_PARENTS);
+
+        EntityNode dataRootGroupNode = null;
+        boolean addDataRootGroup = false;
+
+        if (this.shouldAddDataRootGroupInTheHierarchy(partitionId, groupNode)) {
+            dataRootGroupNode = retrieveGroupRepo.groupExistenceValidation(String.format(EntityNode.ROOT_DATA_GROUP_EMAIL_FORMAT, createGroupServiceDto.getPartitionDomain()), partitionId);
+            addDataRootGroup = true;
+
             Set<ParentReference> allExistingParentsOfRootDataGroup = retrieveGroupRepo.loadAllParents(dataRootGroupNode).getParentReferences();
-            if (allExistingParentsOfRootDataGroup.size() >= dataRootGroupQuota) {
-                log.error(String.format("Identity %s already belong to %d groups", dataRootGroupNode.getNodeId(), allExistingParentsOfRootDataGroup.size()));
-                throw new AppException(HttpStatus.PRECONDITION_FAILED.value(), HttpStatus.PRECONDITION_FAILED.getReasonPhrase(), String.format("Identity %s cannot be added to the group %s, as it has reached its group quota of %d groups",
-                        dataRootGroupNode.getNodeId(), groupNode.getNodeId(), dataRootGroupQuota));
-            }
+
+            this.validateGroupMembershipLimit(dataRootGroupNode.getNodeId(), allExistingParentsOfRootDataGroup.size(), dataRootGroupQuota);
+
             log.debug(String.format("Creating a group with root group node: %s", dataRootGroupNode.getName()));
-            CreateGroupRepoDto createGroupRepoDto = CreateGroupRepoDto.builder()
-                    .requesterNode(requesterNode)
-                    .dataRootGroupNode(dataRootGroupNode)
-                    .addDataRootGroup(true)
-                    .partitionId(createGroupServiceDto.getPartitionId()).build();
-            createGroup(groupNode, createGroupRepoDto);
         } else {
             log.debug("Creating a group with no root group node");
-            CreateGroupRepoDto createGroupRepoDto = CreateGroupRepoDto.builder()
-                    .requesterNode(requesterNode)
-                    .dataRootGroupNode(null)
-                    .addDataRootGroup(false)
-                    .partitionId(createGroupServiceDto.getPartitionId()).build();
-            createGroup(groupNode, createGroupRepoDto);
         }
+
+        CreateGroupRepoDto createGroupRepoDto = CreateGroupRepoDto.builder()
+                .requesterNode(requesterNode)
+                .dataRootGroupNode(dataRootGroupNode)
+                .addDataRootGroup(addDataRootGroup)
+                .partitionId(partitionId)
+                .build();
+
+        createGroup(groupNode, createGroupRepoDto);
+
         return groupNode;
     }
 
     private boolean shouldAddDataRootGroupInTheHierarchy(String dataPartitionId, EntityNode groupNode) {
         return !this.partitionFeatureFlagService.getFeature(FeatureFlag.DISABLE_DATA_ROOT_GROUP_HIERARCHY.label, dataPartitionId)
                 && groupNode.isDataGroup() && defaultGroupsService.isNotDefaultGroupName(groupNode.getName());
+    }
+
+    private void validateGroupMembershipLimit(String memberId, int groupMembershipCount, int groupMembershipLimit) {
+        if (groupMembershipCount >= groupMembershipLimit) {
+            log.error(String.format("Identity %s already belongs to %d groups", memberId, groupMembershipCount));
+            throw new AppException(
+                HttpStatus.PRECONDITION_FAILED.value(),
+                HttpStatus.PRECONDITION_FAILED.getReasonPhrase(),
+                String.format("%s's group quota hit. Identity can't belong to more than %d groups", memberId, groupMembershipLimit));
+        }
     }
 
     private void createGroup(EntityNode groupNode, CreateGroupRepoDto createGroupRepoDto) {
