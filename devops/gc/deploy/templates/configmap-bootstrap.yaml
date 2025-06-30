@@ -7,8 +7,6 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
 data:
   ENTITLEMENTS_HOST: {{ .Values.data.entitlementsHost | quote }}
-  ADMIN_USER_EMAIL: {{ .Values.data.adminUserEmail | quote }}
-  GROUP_ID: {{ .Values.data.entitlementsDomain | quote }}
-  AIRFLOW_COMPOSER_EMAIL: {{ .Values.data.airflowComposerEmail | quote }}
   PROJECT_ID: {{ .Values.data.projectId | quote }}
+  AIRFLOW_COMPOSER_EMAIL: {{ .Values.data.airflowComposerEmail | quote }}
   DATA_PARTITION_ID: {{ .Values.global.dataPartitionId | quote }}
