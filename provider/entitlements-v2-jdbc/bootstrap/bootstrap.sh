@@ -11,10 +11,6 @@ bootstrap_entitlements_gc_system_partition() {
   "aliasMappings":
 [
 {
-"aliasId": "SERVICE_PRINCIPAL",
-"userId": "datafier@${PROJECT_ID}.iam.gserviceaccount.com"
-},
-{
 "aliasId": "SERVICE_PRINCIPAL_AIRFLOW",
 "userId": "$AIRFLOW_COMPOSER_EMAIL"
 },
@@ -78,10 +74,6 @@ cat <<EOF >/opt/other-partition-config.json
   "aliasMappings":
 [
 {
-"aliasId": "SERVICE_PRINCIPAL",
-"userId": "$ADMIN_USER_EMAIL"
-},
-{
 "aliasId": "SERVICE_PRINCIPAL_AIRFLOW",
 "userId": "$AIRFLOW_COMPOSER_EMAIL"
 },
@@ -136,12 +128,17 @@ EOF
 
 }
 
-source ./validate-env.sh "DATA_PARTITION_ID"
-source ./validate-env.sh "ENTITLEMENTS_HOST"
-source ./validate-env.sh "ADMIN_USER_EMAIL"
-source ./validate-env.sh "GROUP_ID"
-source ./validate-env.sh "AIRFLOW_COMPOSER_EMAIL"
-source ./validate-env.sh "PROJECT_ID"
+# Validate required environment variables
+for var in \
+  DATA_PARTITION_ID \
+  ENTITLEMENTS_HOST \
+  AIRFLOW_COMPOSER_EMAIL \
+  PROJECT_ID; do
+  if [ -z "${!var}" ]; then
+    echo "Missing environment variable '$var'. Please provide all variables and try again"
+    exit 1
+  fi
+done
 
 # Specifying "system" partition for GC installation
 export SYSTEM_PARTITION_ID="system"

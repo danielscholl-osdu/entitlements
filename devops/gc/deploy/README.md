@@ -43,7 +43,6 @@ You need to set variables in **values.yaml** file using any code editor. Some of
 | ----------------------------- | ------------------------------------------------------------------------------- | ------- | --------------------- | ----------------------------------------------- |
 | **data.logLevel**             | logging severity level for this service only                                    | string  | -                     | yes, only if differs from the `global.logLevel` |
 | **data.entitlementsHost**     | Entitlements service host                                                       | string  | `http://entitlements` | yes                                             |
-| **data.adminUserEmail**       | admin user email                                                                | string  | -                     | yes                                             |
 | **data.airflowComposerEmail** | airflow composer email                                                          | string  | -                     | yes                                             |
 | **data.partitionHost**        | Partition service host                                                          | string  | `http://partition`    | yes                                             |
 | **data.projectId**            | project ID                                                                      | string  | -                     | yes                                             |
