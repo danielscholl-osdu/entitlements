@@ -9,7 +9,6 @@ global:
 data:
   # Configmaps
   entitlementsHost: "http://entitlements"
-  adminUserEmail: ""
   airflowComposerEmail: ""
   logLevel: ""
   partitionHost: "http://partition"

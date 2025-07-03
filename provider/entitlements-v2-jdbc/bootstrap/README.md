@@ -1,19 +1,30 @@
-# Bootstrap
+# GC Entitlements Bootstrap
 
-Below you can find required variables to bootstrap Entitlements Service on Google Cloud . They should be passed as environment variables.
+This directory contains the bootstrap script for setting up the Entitlements Service on Google Cloud.
 
-## Common environment variables
+## Required Environment Variables
 
-```bash
-  DATA_PARTITION_ID
-  ENTITLEMENTS_HOST
-  ADMIN_USER_EMAIL
-  PROJECT_ID
-  AIRFLOW_COMPOSER_EMAIL
-```
-
-## Google Cloud specific variables
+The following environment variables must be set before running the bootstrap script:
 
 ```bash
-  PROJECT_ID
+DATA_PARTITION_ID          # The data partition identifier
+ENTITLEMENTS_HOST          # The entitlements service host URL
+PROJECT_ID                 # The Google Cloud project ID
+AIRFLOW_COMPOSER_EMAIL     # The Airflow Composer service account email
 ```
+
+## Usage
+
+1. Set all required environment variables
+2. Run the bootstrap script:
+
+   ```bash
+   ./bootstrap.sh
+   ```
+
+The script will:
+
+- Validate all required environment variables are set
+- Bootstrap the system partition with service principal mappings
+- Bootstrap the specified data partition with the same mappings
+- Create the necessary configuration files and make API calls to provision the entitlements
