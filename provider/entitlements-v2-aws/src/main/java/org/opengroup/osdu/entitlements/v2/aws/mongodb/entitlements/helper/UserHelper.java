@@ -17,7 +17,9 @@
 
 package org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.helper;
 
+import org.apache.http.HttpStatus;
 import org.opengroup.osdu.core.aws.mongodb.helper.BasicMongoDBHelper;
+import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.UserDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.IdDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.NodeRelationDoc;
@@ -25,6 +27,7 @@ import org.opengroup.osdu.entitlements.v2.aws.util.ExceptionGenerator;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -55,12 +58,44 @@ public class UserHelper extends NodeHelper {
     }
 
     public UserDoc getOrCreate(UserDoc docForCheck) {
+        // Prioritize assuming that the user already exists
         UserDoc userDoc = this.getById(docForCheck.getId());
         if (userDoc != null) {
             return userDoc;
         }
-        save(docForCheck);
+        try {
+            // Try to save the new user
+            save(docForCheck);
+        } catch (DuplicateKeyException duplicateKey) {
+            // User must have been inserted between the getById and the save calls, otherwise,
+            // there's some internal MongoDB issue at work.
+            userDoc = retryGetById(docForCheck.getId(), duplicateKey);
+            return userDoc;
+        }
         return docForCheck;
+    }
+
+    private UserDoc retryGetById(IdDoc id, DuplicateKeyException originalException) {
+        int maxRetries = 3;
+        int baseDelayMs = 50;
+        
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
+            UserDoc userDoc = this.getById(id);
+            if (userDoc != null) {
+                return userDoc;
+            }
+            
+            if (attempt < maxRetries - 1) {
+                try {
+                    Thread.sleep(baseDelayMs * (1L << attempt)); // Exponential backoff: 50ms, 100ms, 200ms
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+        
+        throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Could not get or create user doc", "User already exists, but cannot retrieve the user details after retries.", originalException);
     }
 
     public void save(UserDoc userDoc) {
