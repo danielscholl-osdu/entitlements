@@ -4,7 +4,7 @@ global:
   dataPartitionId: ""
   logLevel: "ERROR"
   tier: ""
-  autoscaling: true
+  autoscalingMode: "cpu"
 
 data:
   # Configmaps
@@ -32,13 +32,18 @@ data:
   cloudSqlProxyVersion: "1.32.0"
   sqlConnectionString: ""
   javaOptions: "-XX:MaxDirectMemorySize=512M"
+  affinityLabelsSpot:
+    cloud.google.com/gke-provisioning:
+      - spot
+  affinityLabelsStandard:
+    cloud.google.com/gke-provisioning:
+      - standard
 
 conf:
   configmap: "entitlements-config"
   appName: "entitlements"
   entitlementsPostgresSecretName: "entitlements-multi-tenant-postgres-secret"
   entitlementsRedisSecretName: "entitlements-redis-secret"
-  replicas: 2
 
 istio:
   proxyCPU: "5m"
@@ -51,16 +56,25 @@ istio:
   corsEnabled: false
 
 hpa:
-  minReplicas: 3
-  maxReplicas: 15
-  targetType: "AverageValue"
-  targetValue: 330
-  behaviorScaleUpStabilizationWindowSeconds: 10
-  behaviorScaleUpPoliciesValue: 50
-  behaviorScaleUpPoliciesPeriodSeconds: 15
-  behaviorScaleDownStabilizationWindowSeconds: 60
-  behaviorScaleDownPoliciesValue: 25
-  behaviorScaleDownPoliciesPeriodSeconds: 60
+  minReplicas: 1
+  maxReplicas: 6
+  cpu:
+    utilization: 500
+    scaleUpStabilizationWindowSeconds: 30
+    scaleUpValue: 200
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 150
+    scaleDownValue: 100
+    scaleDownPeriod: 15
+  requests:
+    targetType: "AverageValue"
+    targetValue: 40
+    scaleUpStabilizationWindowSeconds: 10
+    scaleUpValue: 50
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 60
+    scaleDownValue: 25
+    scaleDownPeriod: 60
 
 limits:
   maxTokens: 390
