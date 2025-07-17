@@ -22,7 +22,7 @@ data:
   # Deployments
   bootstrapImage: ""
   bootstrapServiceAccountName: ""
-  requestsCpu: "25m"
+  requestsCpu: "65m"
   requestsMemory: "350Mi"
   limitsCpu: "1"
   limitsMemory: "1G"
@@ -59,7 +59,7 @@ hpa:
   minReplicas: 1
   maxReplicas: 6
   cpu:
-    utilization: 500
+    utilization: 200
     scaleUpStabilizationWindowSeconds: 30
     scaleUpValue: 200
     scaleUpPeriod: 15
@@ -68,7 +68,7 @@ hpa:
     scaleDownPeriod: 15
   requests:
     targetType: "AverageValue"
-    targetValue: 40
+    targetValue: 330
     scaleUpStabilizationWindowSeconds: 10
     scaleUpValue: 50
     scaleUpPeriod: 15
