@@ -25,13 +25,16 @@ The following software have components provided under the terms of this license:
 - AWS Cryptographic Material Providers Library (from https://github.com/aws/aws-cryptographic-material-providers-library)
 - AWS Database Encryption SDK for DynamoDB (from https://github.com/aws/aws-database-encryption-sdk-dynamodb)
 - AWS Event Stream (from https://github.com/awslabs/aws-eventstream-java)
+- AWS Java SDK :: AWS CRT Core (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: AWS Core (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Annotations (from https://repo1.maven.org/maven2/software/amazon/awssdk/annotations)
+- AWS Java SDK :: Arns (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Auth (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Checksums (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Checksums SPI (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Core :: Protocols :: AWS Json Protocol (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Core :: Protocols :: AWS Query Protocol (from https://aws.amazon.com/sdkforjava)
+- AWS Java SDK :: Core :: Protocols :: AWS Xml Protocol (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Core :: Protocols :: Json Utils (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Core :: Protocols :: Protocol Core (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: DynamoDB :: Enhanced Client (from https://aws.amazon.com/sdkforjava)
@@ -54,8 +57,12 @@ The following software have components provided under the terms of this license:
 - AWS Java SDK :: Services :: AWS STS (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Services :: AWS Secrets Manager (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Services :: AWS Simple Systems Management (SSM) (from https://aws.amazon.com/sdkforjava)
+- AWS Java SDK :: Services :: Amazon CloudWatch Logs (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Services :: Amazon Cognito Identity Provider Service (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Services :: Amazon DynamoDB (from https://aws.amazon.com/sdkforjava)
+- AWS Java SDK :: Services :: Amazon S3 (from https://aws.amazon.com/sdkforjava)
+- AWS Java SDK :: Services :: Amazon SNS (from https://aws.amazon.com/sdkforjava)
+- AWS Java SDK :: Services :: Amazon SQS (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Third Party :: Jackson-core (from https://aws.amazon.com/sdkforjava)
 - AWS Java SDK :: Utilities (from https://repo1.maven.org/maven2/software/amazon/awssdk/utils)
 - AWS Java SDK for AWS KMS (from https://aws.amazon.com/sdkforjava)
@@ -83,7 +90,7 @@ The following software have components provided under the terms of this license:
 - Apache HttpClient Cache (from http://hc.apache.org/httpcomponents-client, http://hc.apache.org/httpcomponents-client-ga)
 - Apache HttpCore (from http://hc.apache.org/httpcomponents-core-ga, http://hc.apache.org/httpcomponents-core-ga/, http://hc.apache.org/httpcomponents-core/)
 - Apache Log4j API (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api)
-- Apache Log4j Core (from https://logging.apache.org/log4j/3.x/, https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
+- Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
 - Apache Log4j JUL Handler (from https://logging.apache.org/log4j/3.x/, https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul)
 - Apache Log4j SLF4J 2.0 Binding (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j2-impl)
 - Apache Log4j SLF4J Binding (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl)
@@ -103,7 +110,7 @@ The following software have components provided under the terms of this license:
 - BSON Record Codec (from <https://www.mongodb.com/>, https://bsonspec.org, https://www.mongodb.com/)
 - Byte Buddy (without dependencies) (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
 - Byte Buddy Java agent (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent)
-- ClassMate (from http://github.com/cowtowncoder/java-classmate, https://github.com/FasterXML/java-classmate)
+- ClassMate (from http://github.com/cowtowncoder/java-classmate)
 - Collections (from https://repo1.maven.org/maven2/commons-collections/commons-collections)
 - Converter: Jackson (from https://github.com/square/retrofit, https://repo1.maven.org/maven2/com/squareup/retrofit2/converter-jackson)
 - Core functionality for the Reactor Netty library (from https://github.com/reactor/reactor-netty)
@@ -147,7 +154,7 @@ The following software have components provided under the terms of this license:
 - JSONassert (from http://github.com/skyscreamer/yoga, https://github.com/skyscreamer/JSONassert)
 - JSR107 API and SPI (from https://github.com/jsr107/jsr107spec)
 - JSpecify annotations (from http://jspecify.org/)
-- Jackson dataformat: CBOR (from http://github.com/FasterXML/jackson-dataformats-binary, https://github.com/FasterXML/jackson-dataformats-binary)
+- Jackson dataformat: CBOR (from http://github.com/FasterXML/jackson-dataformats-binary)
 - Jackson datatype: JSR310 (from http://wiki.fasterxml.com/JacksonModuleJSR310, https://repo1.maven.org/maven2/com/fasterxml/jackson/datatype/jackson-datatype-jsr310)
 - Jackson datatype: Joda (from http://wiki.fasterxml.com/JacksonModuleJoda, https://github.com/FasterXML/jackson-datatype-joda)
 - Jackson datatype: jdk8 (from https://repo1.maven.org/maven2/com/fasterxml/jackson/datatype/jackson-datatype-jdk8)
@@ -309,7 +316,7 @@ The following software have components provided under the terms of this license:
 - swagger-models (from https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-models, https://repo1.maven.org/maven2/io/swagger/swagger-models)
 - swagger-models-jakarta (from https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-models-jakarta)
 - tomcat-annotations-api (from http://tomcat.apache.org/, https://tomcat.apache.org/)
-- tomcat-embed-core (from http://tomcat.apache.org/, https://tomcat.apache.org/)
+- tomcat-embed-core (from http://tomcat.apache.org/)
 - tomcat-embed-el (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 - tomcat-embed-websocket (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 - webjars-locator-lite (from https://webjars.org)
@@ -320,7 +327,7 @@ BSD-2-Clause
 The following software have components provided under the terms of this license:
 
 - ANTLR 4 Runtime (from https://repo1.maven.org/maven2/org/antlr/antlr4-runtime)
-- Apache Log4j Core (from https://logging.apache.org/log4j/3.x/, https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
+- Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
 - Hamcrest Core (from http://hamcrest.org/, http://hamcrest.org/JavaHamcrest/, https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
 - Jodd Util (from https://util.jodd.org)
@@ -395,7 +402,7 @@ CDDL-1.0
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Apache Log4j Core (from https://logging.apache.org/log4j/3.x/, https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
+- Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - javax.annotation API (from http://jcp.org/en/jsr/detail?id=250)
 
@@ -406,7 +413,7 @@ The following software have components provided under the terms of this license:
 
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - javax.annotation API (from http://jcp.org/en/jsr/detail?id=250)
-- tomcat-embed-core (from http://tomcat.apache.org/, https://tomcat.apache.org/)
+- tomcat-embed-core (from http://tomcat.apache.org/)
 
 ========================================================================
 CPL-1.0
@@ -431,7 +438,7 @@ The following software have components provided under the terms of this license:
 - Apache TinkerPop :: Gremlin Driver (from https://repo1.maven.org/maven2/org/apache/tinkerpop/gremlin-driver)
 - H2 Database Engine (from https://h2database.com)
 - JGraphT - Core (from https://repo1.maven.org/maven2/org/jgrapht/jgrapht-core)
-- JUnit Vintage Engine (from http://junit.org/junit5/, https://junit.org/, https://junit.org/junit5/)
+- JUnit Vintage Engine (from http://junit.org/junit5/, https://junit.org/junit5/)
 - Logback Contrib :: JSON :: Classic (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-classic)
 - Logback Contrib :: JSON :: Core (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-core)
 - Logback Contrib :: Jackson (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-jackson)
@@ -445,13 +452,13 @@ The following software have components provided under the terms of this license:
 - Angus Activation Registries (from https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation)
 - AspectJ Weaver (from http://www.aspectj.org, https://www.eclipse.org/aspectj/)
 - JGraphT - Core (from https://repo1.maven.org/maven2/org/jgrapht/jgrapht-core)
-- JUnit Jupiter (Aggregator) (from https://junit.org/, https://junit.org/junit5/)
-- JUnit Jupiter API (from http://junit.org/junit5/, https://junit.org/, https://junit.org/junit5/)
-- JUnit Jupiter Engine (from http://junit.org/junit5/, https://junit.org/, https://junit.org/junit5/)
-- JUnit Jupiter Params (from http://junit.org/junit5/, https://junit.org/, https://junit.org/junit5/)
-- JUnit Platform Commons (from http://junit.org/junit5/, https://junit.org/, https://junit.org/junit5/)
-- JUnit Platform Engine API (from http://junit.org/junit5/, https://junit.org/, https://junit.org/junit5/)
-- JUnit Vintage Engine (from http://junit.org/junit5/, https://junit.org/, https://junit.org/junit5/)
+- JUnit Jupiter (Aggregator) (from https://junit.org/junit5/)
+- JUnit Jupiter API (from http://junit.org/junit5/, https://junit.org/junit5/)
+- JUnit Jupiter Engine (from http://junit.org/junit5/, https://junit.org/junit5/)
+- JUnit Jupiter Params (from http://junit.org/junit5/, https://junit.org/junit5/)
+- JUnit Platform Commons (from http://junit.org/junit5/, https://junit.org/junit5/)
+- JUnit Platform Engine API (from http://junit.org/junit5/, https://junit.org/junit5/)
+- JUnit Vintage Engine (from http://junit.org/junit5/, https://junit.org/junit5/)
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
 - Jakarta Dependency Injection (from https://github.com/eclipse-ee4j/injection-api)
@@ -465,7 +472,7 @@ GPL-2.0-only
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- tomcat-embed-core (from http://tomcat.apache.org/, https://tomcat.apache.org/)
+- tomcat-embed-core (from http://tomcat.apache.org/)
 
 ========================================================================
 GPL-2.0-with-classpath-exception
@@ -482,7 +489,7 @@ The following software have components provided under the terms of this license:
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - Old JAXB Core (from <https://eclipse-ee4j.github.io/jaxb-ri/>, https://eclipse-ee4j.github.io/jaxb-ri/, https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl)
 - javax.annotation API (from http://jcp.org/en/jsr/detail?id=250)
-- tomcat-embed-core (from http://tomcat.apache.org/, https://tomcat.apache.org/)
+- tomcat-embed-core (from http://tomcat.apache.org/)
 
 ========================================================================
 ISC
@@ -528,7 +535,7 @@ The following software have components provided under the terms of this license:
 - Azure Java Client Authentication Library for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Java Client Runtime for ARM (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Java Client Runtime for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
-- Checker Qual (from https://checkerframework.org, https://checkerframework.org/)
+- Checker Qual (from https://checkerframework.org)
 - DafnyRuntime (from https://github.com/dafny-lang/dafny)
 - Extensions on Apache Proton-J library (from https://github.com/Azure/qpid-proton-j-extensions)
 - JCL 1.2 implemented over SLF4J (from http://www.slf4j.org)
@@ -612,7 +619,7 @@ SPL-1.0
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Checker Qual (from https://checkerframework.org, https://checkerframework.org/)
+- Checker Qual (from https://checkerframework.org)
 
 ========================================================================
 cc-pd
