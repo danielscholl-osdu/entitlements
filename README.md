@@ -1,63 +1,35 @@
-# OSDU SPI Fork Management Template
+# Entitlement Service
+Official documentation can be found at [https://osdu.pages.opengroup.org/platform/security-and-compliance/entitlements/](https://osdu.pages.opengroup.org/platform/security-and-compliance/entitlements/)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Issues](https://img.shields.io/github/issues/danielscholl-osdu/osdu-fork-template)](https://github.com/danielscholl-osdu/osdu-fork-template/issues)
-[![Documentation](https://img.shields.io/badge/Documentation-Live-blue?logo=gitbook)](https://danielscholl-osdu.github.io/osdu-fork-template/)
+## Running the Entitlements Service locally
+The Entitlements Service is a Maven multi-module project with each cloud implemention placed in its submodule.
 
-> **Automated management for long-lived forks with AI-enhanced workflows**
+## AWS
 
-## What This Template Provides
+Instructions for running and testing this service can be found [here](./provider/entitlements-v2-aws/README.md)
 
-- 🔄 Automated upstream synchronization with conflict detection
-- 🤖 AI-enhanced PR descriptions and conflict guidance
-- 🛡️ Three-branch safety strategy
-- 📈 Release correlation tracking
-- 🎯 Zero-maintenance operations
+### Integration tests
+Instructions for running the Azure integration tests in local environment can be found [here][Azure documentation]
 
-**Perfect for**: OSDU teams needing Azure SPI customizations while staying current with upstream.
+Instructions for running the JDBC integration tests can be found [here][JDBC documentation].
 
-## Quick Start
+[Azure documentation]: testing/entitlements-v2-test-azure/README.md
+[JDBC documentation]: provider/entitlements-v2-jdbc/README.md
 
-### 1. Create Your Fork Repository
 
-Click **"Use this template"** → Choose repository name → **Create repository**
+### Open API 3.0 - Swagger
+- Swagger UI : https://host/context-path/swagger (will redirect to https://host/context-path/swagger-ui/index.html)
+- api-docs (JSON) : https://host/context-path/api-docs
+- api-docs (YAML) : https://host/context-path/api-docs.yaml
 
-### 2. Initialize Your Fork
+All the Swagger and OpenAPI related common properties are managed here [swagger.properties](./entitlements-v2-core/src/main/resources/swagger.properties)
 
-1. Go to **Actions** → **"Repository Initialization"** → **"Run workflow"**
-2. Follow the setup instructions in the automatically created issue
-3. Provide your upstream repository URL when prompted
-4. Wait 2-5 minutes for complete setup
+#### Server Url(full path vs relative path) configuration
+- `api.server.fullUrl.enabled=true` It will generate full server url in the OpenAPI swagger
+- `api.server.fullUrl.enabled=false` It will generate only the contextPath only
+- default value is false (Currently only in Azure it is enabled)
+[Reference]:(https://springdoc.org/faq.html#_how_is_server_url_generated)
 
-### 3. Configure Secrets (Optional but Recommended)
+### AWS
 
-For full automation, add these secrets in **Settings** → **Secrets and variables** → **Actions**:
-
-| Secret | Purpose | Required |
-|--------|---------|----------|
-| `GH_TOKEN` | Repository automation | For branch protection & full automation |
-| `ANTHROPIC_API_KEY` | AI-enhanced PR descriptions | Optional but recommended |
-
-### 4. Start Using
-
-- **Daily sync** happens automatically at midnight UTC
-- **Manual sync** available in Actions → "Upstream Synchronization"  
-- **Conflicts** create detailed issues with resolution guidance
-- **Releases** are automatically versioned and correlated with upstream
-
-## Support and Contributing
-
-📚 **[Complete Documentation](https://danielscholl-osdu.github.io/osdu-fork-template/)** - Comprehensive guides covering system concepts, architecture, workflows, and AI integration.
-
-- **Issues**: [Report bugs or request features](https://github.com/danielscholl-osdu/osdu-fork-template/issues)
-- **Discussions**: [Community support and questions](https://github.com/danielscholl-osdu/osdu-fork-template/discussions)
-- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines
-- **Security**: Report security issues privately via [GitHub security advisories](https://github.com/danielscholl-osdu/osdu-fork-template/security/advisories)
-
-## License
-
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Need help?** Check the [documentation](https://danielscholl-osdu.github.io/osdu-fork-template/) or [open an issue](https://github.com/danielscholl-osdu/osdu-fork-template/issues/new).
+Instructions for running the AWS integration tests can be found [here](./provider/entitlements-v2-aws/README.md).
