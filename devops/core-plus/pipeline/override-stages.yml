@@ -28,3 +28,20 @@ cimpl-test:
       --projects $CIMPL_TEST_PROJECT
       --update-snapshots
 
+#dev2 jobs
+cimpl-dev2-deploy:
+  variables:
+    CIMPL_SERVICE: "entitlements"
+
+cimpl-dev2-acceptance-test:
+  variables:
+    PARTITION_URL: "https://osdu.dev2.osdu-cimpl.opengroup.org/api/partition/v1/"
+
+cimpl-dev2-test:
+  script:
+    - >
+      $MAVEN_BUILD . test-results.log
+      verify
+      --file $CIMPL_TESTING_DIR/pom.xml
+      --projects $CIMPL_TEST_PROJECT
+      --update-snapshots
