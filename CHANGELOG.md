@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.1](https://github.com/danielscholl-osdu/entitlements/compare/v1.0.0...v1.0.1) (2025-08-06)
+
+
+### 🐛 Bug Fixes
+
+* AWS tomcat cve ([bcdce34](https://github.com/danielscholl-osdu/entitlements/commit/bcdce343942bf4eb65d1cba806d533110246c195))
+* AWS tomcat cve ([d0f0656](https://github.com/danielscholl-osdu/entitlements/commit/d0f065636236e62ba09a0738b505bbe6ca6788fa))
+
+
+### 🔧 Miscellaneous
+
+* Sync template updates ([78b8a8f](https://github.com/danielscholl-osdu/entitlements/commit/78b8a8f3fad068d23e60ca6892c826fe0e1fb473))
+* Update NOTICE attribution and add dev2 pipeline configuration ([5026fe1](https://github.com/danielscholl-osdu/entitlements/commit/5026fe13b84e10666bbdcc8bb11a4db65bbf3c1c))
+
+
+### 🔨 Build System
+
+* **deps:** Upgrade tomcat-embed-core to 10.1.42 ([8661873](https://github.com/danielscholl-osdu/entitlements/commit/8661873709097e943986747078ea8daea132332a))
+
 ## 1.0.0 (2025-07-19)
 
 
