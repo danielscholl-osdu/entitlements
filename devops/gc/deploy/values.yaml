@@ -29,7 +29,7 @@ data:
   serviceAccountName: "entitlements"
   image: ""
   imagePullPolicy: "IfNotPresent"
-  cloudSqlProxyVersion: "1.32.0"
+  cloudSqlProxyVersion: "2.18.0"
   sqlConnectionString: ""
   javaOptions: "-XX:MaxDirectMemorySize=512M"
   affinityLabelsSpot:
