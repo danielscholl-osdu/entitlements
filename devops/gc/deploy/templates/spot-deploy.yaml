@@ -105,12 +105,13 @@ spec:
             cpu: {{ .Values.data.limitsCpu | quote }}
             memory: {{ .Values.data.limitsMemory | quote }}
           {{- end }}
-      - image: "gcr.io/cloudsql-docker/gce-proxy:{{ .Values.data.cloudSqlProxyVersion }}"
+      - image: "gcr.io/cloud-sql-connectors/cloud-sql-proxy:{{ .Values.data.cloudSqlProxyVersion }}"
         imagePullPolicy: {{ .Values.data.imagePullPolicy | quote }}
         name: cloud-sql-proxy
         command:
-          - /cloud_sql_proxy
-          - "-instances={{ .Values.data.sqlConnectionString }}=tcp:5432"
+          - /cloud-sql-proxy
+          - "{{ .Values.data.sqlConnectionString }}"
+          - "--private-ip"
       serviceAccountName: {{ .Values.data.serviceAccountName | quote }}
   strategy:
     type: RollingUpdate
