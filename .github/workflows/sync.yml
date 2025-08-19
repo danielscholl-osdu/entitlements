@@ -374,8 +374,7 @@ jobs:
           PR_NUMBER=$(basename "$PR_URL")
           echo "PR number: $PR_NUMBER"
           
-          # Update sync state with new PR number
-          git config sync.current-pr-number "$PR_NUMBER"
+          # PR number will be tracked via issue description updates
           
           # Set outputs for next step
           echo "pr-url=$PR_URL" >> $GITHUB_OUTPUT
@@ -478,18 +477,24 @@ jobs:
             --title "⬆️ Sync with upstream $UPSTREAM_VERSION (Updated)" \
             --body "$PR_DESCRIPTION"
           
-          # Add comment to the PR about the update
-          gh pr comment "$PR_NUMBER" --body "🔄 **Sync Updated**
+          # Check for existing "Sync Updated" comments to prevent duplicates
+          EXISTING_COMMENT=$(gh pr view "$PR_NUMBER" --json comments --jq '.comments[] | select(.body | contains("🔄 **Sync Updated**")) | .body' | grep -c "New upstream version.*$UPSTREAM_VERSION" || echo "0")
           
-          The upstream repository has advanced since this PR was created. This branch has been updated with the latest changes from upstream.
-          
-          **New upstream version**: \`$UPSTREAM_VERSION\`
-          **Updated at**: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`
-          **PR description**: Regenerated to include all commits (original + new changes)
-          
-          Please review the updated changes and merge when ready."
-          
-          # Note: Comment deduplication now uses existing comment checking rather than git config tracking
+          if [ "$EXISTING_COMMENT" = "0" ]; then
+            # Add comment to the PR about the update
+            gh pr comment "$PR_NUMBER" --body "🔄 **Sync Updated**
+            
+            The upstream repository has advanced since this PR was created. This branch has been updated with the latest changes from upstream.
+            
+            **New upstream version**: \`$UPSTREAM_VERSION\`
+            **Updated at**: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`
+            **PR description**: Regenerated to include all commits (original + new changes)
+            
+            Please review the updated changes and merge when ready."
+            echo "✅ Added sync update comment for upstream version $UPSTREAM_VERSION"
+          else
+            echo "ℹ️ Skipping duplicate comment - sync update for $UPSTREAM_VERSION already exists"
+          fi
           
           # Set outputs for consistency
           echo "pr-url=${{ github.server_url }}/${{ github.repository }}/pull/$PR_NUMBER" >> $GITHUB_OUTPUT
@@ -518,8 +523,7 @@ jobs:
           # Extract issue number
           ISSUE_NUMBER=$(basename "$ISSUE_URL")
           
-          # Update sync state with new issue number
-          git config sync.current-issue-number "$ISSUE_NUMBER"
+          # Issue state will be maintained by updating the issue description
           
           # Build notification body with the actual issue number
           printf -v NOTIFICATION_BODY '%s\n\n%s\n\n%s\n\n%s\n\n%s\n%s\n%s\n%s\n\n%s\n\n%s\n%s\n%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n%s\n\n%s\n\n%s\n%s\n\n%s\n\n%s\n%s\n%s\n\n%s\n\n%s\n\n%s\n%s\n%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n%s\n%s' \
