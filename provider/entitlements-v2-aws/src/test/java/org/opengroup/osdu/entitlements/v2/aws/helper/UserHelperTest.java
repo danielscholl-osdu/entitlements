@@ -25,6 +25,7 @@ import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.UserDo
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.IdDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.NodeRelationDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.helper.UserHelper;
+import org.opengroup.osdu.entitlements.v2.model.ParentReference;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
@@ -41,6 +42,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.NodeGenerator.generateUniqueNodeRelationDocs;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.NodeGenerator.getNodeRelationDocByIdDoc;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.UserDocGenerator.createUserDocsByIds;
@@ -268,5 +270,16 @@ class UserHelperTest extends ParentUtil {
         all.forEach(userDoc -> assertEquals(8, userDoc.getAllParents().size()));
     }
 
+    @Test
+    void loadDirectParents_shouldReturnEmptyList_whenUserDoesNotExist() {
+        // Given
+        IdDoc nonExistentUserId = new IdDoc("nonexistent@testing.com", "osdu");
 
+        // When
+        List<ParentReference> result = userHelper.loadDirectParents(nonExistentUserId);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
 }

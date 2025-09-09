@@ -186,4 +186,16 @@ public abstract class DeleteMemberTest extends AcceptanceBaseTest {
         return entitlementsV2Service.getMembers(anotherGroupEmail, token.getValue()).getMembers().stream()
                 .anyMatch(memberItem -> memberItem.getEmail().equals(groupEmail));
     }
+
+    @Test
+    public void deleteMember_shouldReturn204_whenUserNeverExisted() throws Exception {
+        // Given
+        String nonExistentUser = "nonexistent-" + System.currentTimeMillis() + "@testing.com";
+        
+        // When
+        CloseableHttpResponse response = entitlementsV2Service.deleteMember(nonExistentUser, token.getValue());
+        
+        // Then
+        assertEquals(204, response.getCode());
+    }
 }
