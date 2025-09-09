@@ -204,6 +204,9 @@ public class UserHelper extends NodeHelper {
 
     public List<ParentReference> loadDirectParents(IdDoc userId) {
         UserDoc user = this.getById(userId);
+        if (user == null) {
+            return new ArrayList<>();
+        }
         Set<NodeRelationDoc> directRelations = user.getDirectParents();
         List<ParentReference> parentReferences = new ArrayList<>();
         for (NodeRelationDoc directRelation : directRelations) {
