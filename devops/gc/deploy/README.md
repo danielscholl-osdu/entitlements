@@ -52,22 +52,24 @@ You need to set variables in **values.yaml** file using any code editor. Some of
 
 ### Deployment variables
 
-| Name                                 | Description                  | Type   | Default                              | Required                               |
-| ------------------------------------ | ---------------------------- | ------ | ------------------------------------ | -------------------------------------- |
-| **data.requestsCpu**                 | amount of requested CPU      | string | `25m`                                | yes                                    |
-| **data.requestsMemory**              | amount of requested memory   | string | `350Mi`                              | yes                                    |
-| **data.limitsCpu**                   | CPU limit                    | string | `1`                                  | only if `global.limitsEnabled` is true |
-| **data.limitsMemory**                | memory limit                 | string | `1G`                                 | only if `global.limitsEnabled` is true |
-| **data.serviceAccountName**          | name of your service account | string | `entitlements`                       | yes                                    |
-| **data.imagePullPolicy**             | when to pull image           | string | `IfNotPresent`                       | yes                                    |
-| **data.image**                       | service image                | string | -                                    | yes                                    |
-| **data.redisImage**                  | service image                | string | `docker.io/library/redis:7.2-alpine` | yes                                    |
-| **data.bootstrapImage**              | bootstrap image              | string | -                                    | yes                                    |
-| **data.bootstrapServiceAccountName** | bootstrap service account    | string | -                                    | yes                                    |
-| **data.cloudSqlProxyVersion**        | version of Cloud SQL Proxy   | string | `1.32.0`                             | yes                                    |
-| **data.sqlConnectionString**         | string for SQL connection    | string | -                                    | yes                                    |
-**data.affinityLabelsSpot** | labels with possible values, used to correctly setup the node affinities for spot deployment | object | cloud.google.com/gke-provisioning: [spot] | only if global.autoscaling is true
-**data.affinityLabelsStandard** | labels with possible values, used to correctly setup the node affinities for standard deployment | object | cloud.google.com/gke-provisioning: [standard] | only if global.autoscaling is true
+| Name                                 | Description                         | Type    | Default                              | Required                               |
+| ------------------------------------ | ----------------------------------- | ------- | ------------------------------------ | -------------------------------------- |
+| **data.requestsCpu**                 | amount of requested CPU             | string  | `25m`                                | yes                                    |
+| **data.requestsMemory**              | amount of requested memory          | string  | `350Mi`                              | yes                                    |
+| **data.limitsCpu**                   | CPU limit                           | string  | `1`                                  | only if `global.limitsEnabled` is true |
+| **data.limitsMemory**                | memory limit                        | string  | `1G`                                 | only if `global.limitsEnabled` is true |
+| **data.serviceAccountName**          | name of your service account        | string  | `entitlements`                       | yes                                    |
+| **data.imagePullPolicy**             | when to pull image                  | string  | `IfNotPresent`                       | yes                                    |
+| **data.image**                       | service image                       | string  | -                                    | yes                                    |
+| **data.redisImage**                  | service image                       | string  | `docker.io/library/redis:7.2-alpine` | yes                                    |
+| **data.bootstrapDeploy**             | flag to deploy bootstrap components | boolean | `false`                              | yes                                    |
+| **data.bootstrapImage**              | bootstrap image                     | string  | -                                    | yes                                    |
+| **data.bootstrapServiceAccountName** | bootstrap service account           | string  | -                                    | yes                                    |
+| **data.cloudSqlProxyVersion**        | version of Cloud SQL Proxy          | string  | `1.32.0`                             | yes                                    |
+| **data.sqlConnectionString**         | string for SQL connection           | string  | -                                    | yes                                    |
+|**data.affinityLabelsSpot** | labels with possible values, used to correctly setup the node affinities for spot deployment | object | cloud.google.com/gke-provisioning: [spot] | only if global.autoscaling is true |
+|**data.affinityLabelsStandard** | labels with possible values, used to correctly setup the node affinities for standard deployment | object | cloud.google.com/gke-provisioning: [standard] | only if global.autoscaling is true |
+
 ### Configuration variables
 
 | Name                                    | Description                  | Type    | Default                        | Required |

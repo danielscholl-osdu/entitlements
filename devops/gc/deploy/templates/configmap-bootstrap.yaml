@@ -12,6 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+{{ if .Values.data.bootstrapDeploy }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -24,3 +25,4 @@ data:
   PROJECT_ID: {{ .Values.data.projectId | quote }}
   AIRFLOW_COMPOSER_EMAIL: {{ .Values.data.airflowComposerEmail | quote }}
   DATA_PARTITION_ID: {{ .Values.global.dataPartitionId | quote }}
+{{ end }}
