@@ -105,7 +105,7 @@ include:
     - export ALL_MAVEN_BUILD_DIRS_Z=$(mktemp)
     - python3 --version
     # install ssl 1.1 for test using de.flapdoodle.mongodb.embedded
-    - wget https://debian.mirror.ac.za/debian/pool/main/o/openssl/libssl1.1_1.1.1w-0%2Bdeb11u1_amd64.deb
+    - wget http://ftp.de.debian.org/debian/pool/main/o/openssl/libssl1.1_1.1.1w-0%2Bdeb11u1_amd64.deb
     - dpkg -i libssl1.1_1.1.1w-0+deb11u1_amd64.deb
 
     # This scans for all pom.xml files that aren't listed as a child pom (as
