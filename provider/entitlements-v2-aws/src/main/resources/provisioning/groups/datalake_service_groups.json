@@ -836,6 +836,39 @@
           "name": "users.datalake.ops"
         }
       ]
+    },
+    {
+      "name": "service.collections.viewer",
+      "description": "Collections service viewers - can use chat and GET collections",
+      "members": [
+        {
+          "name": "users.datalake.viewers"
+        },
+        {
+          "name": "users.datalake.editors"
+        },
+        {
+          "name": "users.datalake.admins"
+        },
+        {
+          "name": "users.datalake.ops"
+        }
+      ]
+    },
+    {
+      "name": "service.collections.creator",
+      "description": "Collections service creators - can create collections in addition to viewer permissions",
+      "members": [
+        {
+          "name": "users.datalake.editors"
+        },
+        {
+          "name": "users.datalake.admins"
+        },
+        {
+          "name": "users.datalake.ops"
+        }
+      ]
     }
   ]
 }
