@@ -166,6 +166,12 @@
       "groupName": "service.gcz.admin"
     },
     {
+      "groupName": "service.collections.viewer"
+    },
+    {
+      "groupName": "service.collections.creator"
+    },
+    {
       "groupName": "cron.job"
     }
   ]
