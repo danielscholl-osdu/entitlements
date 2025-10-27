@@ -31,7 +31,7 @@
   </parent>
 
   <properties>
-    <core-lib-azure.version>2.0.8</core-lib-azure.version>
+    <core-lib-azure.version>2.2.6</core-lib-azure.version>
     <slf4j.version>2.0.16</slf4j.version>
     <gremlin.version>3.7.3</gremlin.version>
     <commons-configuration2.version>2.10.1</commons-configuration2.version>
@@ -41,7 +41,7 @@
     <mockito-test.version>5.14.2</mockito-test.version>
     <powermock-test.version>2.0.9</powermock-test.version>
     <!-- Plugin Versions -->
-    <surefire-plugin.version>2.22.2</surefire-plugin.version>
+    <surefire-plugin.version>3.0.0</surefire-plugin.version>
     <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
   </properties>
 
