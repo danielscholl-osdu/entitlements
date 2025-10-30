@@ -7,7 +7,7 @@
         <os-core-lib-ibm.version>0.28.0</os-core-lib-ibm.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
-		<jackson.version>2.18.1</jackson.version>
+		<jackson.version>2.20.0</jackson.version>
 	</properties>
 
     <parent>
