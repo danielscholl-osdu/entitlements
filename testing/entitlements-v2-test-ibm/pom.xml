@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>entitlements-v2-test-ibm</artifactId>
-	<version>0.29.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<properties>
