@@ -47,7 +47,7 @@
     <log4j.version>2.22.0</log4j.version>
 
     <!-- Plugin Versions -->
-    <spring-boot-maven-plugin.version>3.2.2</spring-boot-maven-plugin.version>
+    <spring-boot-maven-plugin.version>3.5.7</spring-boot-maven-plugin.version>
     <git-commit-id-plugin.version>8.0.2</git-commit-id-plugin.version>
   </properties>
 
