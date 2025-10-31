@@ -44,7 +44,7 @@
 
     <!-- Project Versions-->
     <json-smart.version>2.5.2</json-smart.version>
-    <log4j.version>2.22.0</log4j.version>
+    <log4j.version>2.25.2</log4j.version>
 
     <!-- Plugin Versions -->
     <spring-boot-maven-plugin.version>3.2.2</spring-boot-maven-plugin.version>
