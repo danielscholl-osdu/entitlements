@@ -64,4 +64,20 @@ public class ServiceAccountJwtClientImplTest {
         assertEquals(expectedIdToken, idToken);
     }
 
+    @Test
+    public void shouldThrowAppException_whenTenantIsNull() {
+        String partitionId = "invalid-partition";
+        when(tenantInfoServiceProvider.getTenantInfo(partitionId)).thenReturn(null);
+
+        try {
+            serviceAccountJwtClient.getIdToken(partitionId);
+            fail("should throw AppException");
+        } catch (AppException ex) {
+            assertEquals(400, ex.getError().getCode());
+            assertEquals("Invalid tenant Name", ex.getError().getReason());
+        } catch (Exception ex) {
+            fail("should throw AppException but got: " + ex.getClass().getName());
+        }
+    }
+
 }
