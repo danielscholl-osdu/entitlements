@@ -99,24 +99,24 @@ class MemberCacheServiceAzureTest {
     }
 
     @Test
-    void getFromPartitionCache_shouldReturnCachedNullChildren() {
+    void getFromPartitionCache_shouldRebuildCache_whenCacheReturnsNullChildren() throws InterruptedException {
+        // Setup: Cache returns a ChildrenReferences object with null children list
         ChildrenReferences cachedReferences = new ChildrenReferences();
         cachedReferences.setChildReferencesOfGroup(null);
         when(redisMemberCache.get(CACHE_KEY)).thenReturn(cachedReferences);
         when(redisMemberCache.getLock(LOCK_KEY)).thenReturn(rLock);
+        when(rLock.tryLock(anyLong(), anyLong(), any(TimeUnit.class))).thenReturn(true);
 
-        try {
-            when(rLock.tryLock(anyLong(), anyLong(), any(TimeUnit.class))).thenReturn(true);
-            List<ChildrenReference> directChildren = createChildrenReferenceList();
-            when(retrieveGroupRepo.loadDirectChildren(PARTITION_ID, GROUP_ID)).thenReturn(directChildren);
+        // Setup: Repository returns actual data
+        List<ChildrenReference> directChildren = createChildrenReferenceList();
+        when(retrieveGroupRepo.loadDirectChildren(PARTITION_ID, GROUP_ID)).thenReturn(directChildren);
 
-            List<ChildrenReference> result = memberCacheService.getFromPartitionCache(GROUP_ID, PARTITION_ID);
+        // Execute
+        List<ChildrenReference> result = memberCacheService.getFromPartitionCache(GROUP_ID, PARTITION_ID);
 
-            assertNotNull(result);
-            verify(redisMemberCache, times(1)).put(eq(CACHE_KEY), anyLong(), any(ChildrenReferences.class));
-        } catch (InterruptedException e) {
-            fail("Should not throw InterruptedException");
-        }
+        // Verify: Cache was rebuilt with fresh data
+        assertNotNull(result);
+        verify(redisMemberCache, times(1)).put(eq(CACHE_KEY), anyLong(), any(ChildrenReferences.class));
     }
 
     @Test
