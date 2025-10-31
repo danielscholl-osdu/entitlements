@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>entitlements-v2-aws</artifactId>
-    <version>0.29.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
         <core-lib-aws.version>7.0.0</core-lib-aws.version>
