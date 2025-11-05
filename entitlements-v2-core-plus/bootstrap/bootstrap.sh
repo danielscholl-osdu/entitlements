@@ -42,6 +42,10 @@ bootstrap_entitlements_onprem() {
 {
 "aliasId": "SERVICE_PRINCIPAL_SEISMIC",
 "userId": "seismic@service.local"
+},
+{
+"aliasId": "SERVICE_PRINCIPAL_GCZ",
+"userId": "gcz@service.local"
 }
 ]
 }
