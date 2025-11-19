@@ -35,6 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.NodeGenerator.generateGroupNode;
@@ -133,5 +134,22 @@ class DeleteGroupRepoMongoDBTest extends ParentUtil {
                                 .equals(deletedGroupIdDoc)
                         )
                 , "in all parents exists deleted group");
+    }
+
+    @Test
+    void testDeleteGroupReturnsCorrectImpactedUsers() {
+        // given
+        EntityNode deletedGroup4Node = generateGroupNode(4);
+        
+        // when
+        Set<String> impactedUsers = deleteGroupRepoMongoDB.deleteGroup(deletedGroup4Node);
+
+        // then
+        assertNotNull(impactedUsers);
+        assertFalse(impactedUsers.isEmpty());
+        // Group 4 should have users 1, 2, and 4 as members based on the default dataset
+        assertTrue(impactedUsers.contains("user-1@example.com"));
+        assertTrue(impactedUsers.contains("user-2@example.com"));
+        assertTrue(impactedUsers.contains("user-4@example.com"));
     }
 }

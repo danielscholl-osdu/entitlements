@@ -41,6 +41,7 @@ public class AddMemberRepoMongoDB extends BasicEntitlementsHelper implements Add
 
     @Override
     public Set<String> addMember(EntityNode groupNode, AddMemberRepoDto addMemberRepoDtoMDB) {
+        Set<String> impactedUsers = new HashSet<>();
 
         GroupDoc groupToAddMember = groupHelper.getById(new IdDoc(groupNode.getNodeId(), groupNode.getDataPartitionId()));
         if (groupToAddMember == null) {
@@ -60,6 +61,9 @@ public class AddMemberRepoMongoDB extends BasicEntitlementsHelper implements Add
             }
             parentRelations.add(userToGroupRelation);
             userHelper.addMemberRelations(userForAddingToGroup.getId(), parentRelations);
+            
+            // Add the user being added to the impacted users set
+            impactedUsers.add(addMemberRepoDtoMDB.getMemberNode().getNodeId());
         }
 
         // adding Group node to other group
@@ -77,10 +81,14 @@ public class AddMemberRepoMongoDB extends BasicEntitlementsHelper implements Add
             parentRelations.add(groupToParentGroupRelation);
             Set<IdDoc> childUserIds = userHelper.getAllChildUsers(groupForAddingToGroup.getId());
             userHelper.addMemberRelations(childUserIds, parentRelations);
+            
+            // Add all child users of the group being added to the impacted users set
+            for (IdDoc childUserId : childUserIds) {
+                impactedUsers.add(childUserId.getNodeId());
+            }
         }
 
-        //return IDS then cash will work
-        return new HashSet<>();
+        return impactedUsers;
     }
 
     @Override

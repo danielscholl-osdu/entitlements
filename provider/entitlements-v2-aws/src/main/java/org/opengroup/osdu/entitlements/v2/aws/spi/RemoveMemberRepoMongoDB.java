@@ -73,8 +73,20 @@ public class RemoveMemberRepoMongoDB extends BasicEntitlementsHelper implements 
             }
         }
 
-
-        //return IDS then cash will work
-        return new HashSet<>();
+        Set<String> impactedUsers = new HashSet<>();
+        
+        // If removing a user, just add that user
+        if (memberNode.getType() == NodeType.USER) {
+            impactedUsers.add(memberNode.getNodeId());
+        } 
+        // If removing a group, add all users in that group hierarchy
+        else if (memberNode.getType() == NodeType.GROUP) {
+            Set<IdDoc> childUserIds = userHelper.getAllChildUsers(new IdDoc(memberNode.getNodeId(), memberNode.getDataPartitionId()));
+            for (IdDoc childUserId : childUserIds) {
+                impactedUsers.add(childUserId.getNodeId());
+            }
+        }
+        
+        return impactedUsers;
     }
 }

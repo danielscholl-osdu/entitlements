@@ -33,7 +33,12 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.NodeGenerator.generateGroupNode;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.NodeGenerator.generateUserNode;
 
@@ -127,5 +132,44 @@ class RemoveMemberRepoMongoDBTest extends ParentUtil {
 
         //then
         Assertions.assertThrows(IllegalArgumentException.class, () -> removeMemberRepoMongoDB.removeMember(groupNode, userNode, removeMemberServiceDto));
+    }
+
+    @Test
+    void testRemoveUserMemberReturnsCorrectImpactedUsers() {
+        //given
+        EntityNode groupNode = generateGroupNode(4);
+        EntityNode userNode = generateUserNode(1);
+        RemoveMemberServiceDto removeMemberServiceDto = RemoveMemberServiceDto.builder()
+                .partitionId(DATA_PARTITION)
+                .build();
+
+        //when
+        Set<String> impactedUsers = removeMemberRepoMongoDB.removeMember(groupNode, userNode, removeMemberServiceDto);
+
+        //then
+        assertNotNull(impactedUsers);
+        assertEquals(1, impactedUsers.size());
+        assertTrue(impactedUsers.contains(userNode.getNodeId()));
+    }
+
+    @Test
+    void testRemoveGroupMemberReturnsCorrectImpactedUsers() {
+        //given
+        EntityNode parentGroupNode = generateGroupNode(1);
+        EntityNode childGroupNode = generateGroupNode(4);
+        RemoveMemberServiceDto removeMemberServiceDto = RemoveMemberServiceDto.builder()
+                .partitionId(DATA_PARTITION)
+                .build();
+
+        //when
+        Set<String> impactedUsers = removeMemberRepoMongoDB.removeMember(parentGroupNode, childGroupNode, removeMemberServiceDto);
+
+        //then
+        assertNotNull(impactedUsers);
+        assertFalse(impactedUsers.isEmpty());
+        // Should include all users that were in the removed group hierarchy
+        assertTrue(impactedUsers.contains("user-1@example.com"));
+        assertTrue(impactedUsers.contains("user-2@example.com"));
+        assertTrue(impactedUsers.contains("user-4@example.com"));
     }
 }

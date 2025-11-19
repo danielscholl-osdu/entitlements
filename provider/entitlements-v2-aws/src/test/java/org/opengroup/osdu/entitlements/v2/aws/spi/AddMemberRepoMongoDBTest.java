@@ -120,4 +120,66 @@ class AddMemberRepoMongoDBTest extends ParentUtil {
         Assertions.assertThrows(IllegalArgumentException.class, () -> addMemberRepo.addMember(groupNode, dto));
     }
 
+    @Test
+    void addingUserMember_ReturnsImpactedUser() {
+        // given
+        Role role = Role.MEMBER;
+        EntityNode groupNode = generateGroupNode(4);
+        EntityNode userNode = generateUserNode(5);
+        AddMemberRepoDto dto = AddMemberRepoDto.builder()
+                .partitionId(DATA_PARTITION)
+                .memberNode(userNode)
+                .role(role)
+                .build();
+
+        // when
+        java.util.Set<String> impactedUsers = addMemberRepo.addMember(groupNode, dto);
+
+        // then
+        assertNotNull(impactedUsers);
+        Assertions.assertEquals(1, impactedUsers.size());
+        assertTrue(impactedUsers.contains(userNode.getNodeId()));
+    }
+
+    @Test
+    void addingGroupMember_ReturnsImpactedUsers() {
+        // given
+        Role role = Role.MEMBER;
+        EntityNode parentGroupNode = generateGroupNode(4);
+        EntityNode childGroupNode = generateGroupNode(5);
+        
+        // Add some users to the child group first
+        EntityNode user1 = generateUserNode(10);
+        EntityNode user2 = generateUserNode(11);
+        AddMemberRepoDto addUser1Dto = AddMemberRepoDto.builder()
+                .partitionId(DATA_PARTITION)
+                .memberNode(user1)
+                .role(Role.MEMBER)
+                .build();
+        AddMemberRepoDto addUser2Dto = AddMemberRepoDto.builder()
+                .partitionId(DATA_PARTITION)
+                .memberNode(user2)
+                .role(Role.MEMBER)
+                .build();
+        addMemberRepo.addMember(childGroupNode, addUser1Dto);
+        addMemberRepo.addMember(childGroupNode, addUser2Dto);
+        
+        // Now add the child group to parent group
+        AddMemberRepoDto dto = AddMemberRepoDto.builder()
+                .partitionId(DATA_PARTITION)
+                .memberNode(childGroupNode)
+                .role(role)
+                .build();
+
+        // when
+        java.util.Set<String> impactedUsers = addMemberRepo.addMember(parentGroupNode, dto);
+
+        // then
+        assertNotNull(impactedUsers);
+        // getAllChildUsers returns all users in the hierarchy, so we expect more than just the 2 we added
+        assertTrue(impactedUsers.size() >= 2);
+        assertTrue(impactedUsers.contains(user1.getNodeId()));
+        assertTrue(impactedUsers.contains(user2.getNodeId()));
+    }
+
 }
