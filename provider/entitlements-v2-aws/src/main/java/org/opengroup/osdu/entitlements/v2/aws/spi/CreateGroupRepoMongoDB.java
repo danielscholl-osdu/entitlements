@@ -87,8 +87,10 @@ public class CreateGroupRepoMongoDB extends BasicEntitlementsHelper implements C
         userHelper.addDirectRelation(userInitiator.getId(), directRelationForUser);
         userHelper.addMemberRelations(userInitiator.getId(), userMemberRelations);
 
-        //return IDS then cash will work
-        return new HashSet<>();
+        // Return impacted users - the requester who created the group
+        Set<String> impactedUsers = new HashSet<>();
+        impactedUsers.add(createGroupRequest.getRequesterNode().getNodeId());
+        return impactedUsers;
     }
 
     @Override

@@ -19,6 +19,7 @@ package org.opengroup.osdu.entitlements.v2.aws.spi;
 
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.spi.updateappids.UpdateAppIdsRepo;
+import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.IdDoc;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -33,7 +34,12 @@ public class UpdateAppIdsRepoMongoDB extends BasicEntitlementsHelper implements 
         //check is need to replace IDS
         groupHelper.updateAppIds(groupNode, allowedAppIds);
 
-        //return IDS then cash will work
-        return new HashSet<>();
+        // App ID updates affect all users in the group
+        Set<String> impactedUsers = new HashSet<>();
+        Set<IdDoc> childUserIds = userHelper.getAllChildUsers(new IdDoc(groupNode.getNodeId(), groupNode.getDataPartitionId()));
+        for (IdDoc childUserId : childUserIds) {
+            impactedUsers.add(childUserId.getNodeId());
+        }
+        return impactedUsers;
     }
 }

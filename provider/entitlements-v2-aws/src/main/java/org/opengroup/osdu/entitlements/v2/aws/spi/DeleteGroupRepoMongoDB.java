@@ -47,6 +47,13 @@ public class DeleteGroupRepoMongoDB extends BasicEntitlementsHelper implements D
 
         GroupDoc groupToRemove = groupHelper.getById(new IdDoc(groupNode.getNodeId(), groupNode.getDataPartitionId()));
 
+        // Get impacted users BEFORE deleting the group
+        Set<String> impactedUsers = new HashSet<>();
+        Set<IdDoc> childUserIds = userHelper.getAllChildUsers(groupToRemove.getId());
+        for (IdDoc childUserId : childUserIds) {
+            impactedUsers.add(childUserId.getNodeId());
+        }
+
         Set<IdDoc> usersToUpdateParentRelations = userHelper.getAllChildUsers(groupToRemove.getId());
         groupHelper.removeAllDirectChildrenRelations(groupToRemove.getId());
         userHelper.removeAllDirectChildrenRelations(groupToRemove.getId());
@@ -63,10 +70,8 @@ public class DeleteGroupRepoMongoDB extends BasicEntitlementsHelper implements D
             userHelper.rewriteMemberOfRelations(userIdToUpdateParentRelations, userMemberOf);
         }
 
-
         groupHelper.delete(groupToRemove.getId());
-        //return IDS then cash will work
-        return new HashSet<>();
+        return impactedUsers;
     }
 
     @Override

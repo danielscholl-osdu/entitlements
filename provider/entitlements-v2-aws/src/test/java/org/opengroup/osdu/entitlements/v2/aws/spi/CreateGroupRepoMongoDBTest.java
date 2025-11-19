@@ -33,6 +33,8 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -160,5 +162,26 @@ class CreateGroupRepoMongoDBTest extends ParentUtil {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> createGroupRepoMongoDB.createGroup(groupNode, request));
+    }
+
+    @Test
+    void testCreateGroupReturnsCorrectImpactedUsers() {
+        //given
+        EntityNode groupNode = generateGroupNode(102);
+        EntityNode userNode = generateUserNode(103);
+        CreateGroupRepoDto request = CreateGroupRepoDto.builder()
+                .partitionId(DATA_PARTITION)
+                .requesterNode(userNode)
+                .addDataRootGroup(false)
+                .dataRootGroupNode(null)
+                .build();
+
+        //when
+        Set<String> impactedUsers = createGroupRepoMongoDB.createGroup(groupNode, request);
+
+        //then
+        assertNotNull(impactedUsers);
+        assertEquals(1, impactedUsers.size());
+        assertTrue(impactedUsers.contains(userNode.getNodeId()));
     }
 }

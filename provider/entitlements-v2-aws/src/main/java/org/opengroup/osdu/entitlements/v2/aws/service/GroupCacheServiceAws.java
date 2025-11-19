@@ -19,6 +19,7 @@ package org.opengroup.osdu.entitlements.v2.aws.service;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
+import org.opengroup.osdu.entitlements.v2.model.ParentReferences;
 import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,8 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class GroupCacheServiceAws implements GroupCacheService {
+
+    private static final String CACHE_KEY_FORMAT = "%s-%s";
 
     private final RetrieveGroupRepo retrieveGroupRepo;
     private final AwsGroupCache awsGroupCache;
@@ -48,23 +51,31 @@ public class GroupCacheServiceAws implements GroupCacheService {
 
     @Override
     public Set<ParentReference> getFromPartitionCache(String requesterId, String partitionId) {
-        String key = String.format("%s-%s", requesterId, partitionId);
-        Set<ParentReference> result = awsGroupCache.getGroupCache(key);
-        if (result == null) {
+        String key = String.format(CACHE_KEY_FORMAT, requesterId, partitionId);
+        ParentReferences parentReferences = awsGroupCache.getGroupCache(key);
+        if (parentReferences == null) {
             EntityNode entityNode = createEntityNode(requesterId, partitionId);
-            result = retrieveGroupRepo.loadAllParents(entityNode).getParentReferences();
-            awsGroupCache.addGroupCache(key, result);
+            Set<ParentReference> allParents = retrieveGroupRepo.loadAllParents(entityNode).getParentReferences();
+            parentReferences = new ParentReferences();
+            parentReferences.setParentReferencesOfUser(allParents);
+            awsGroupCache.addGroupCache(key, parentReferences);
         }
-        return result;
+        return parentReferences.getParentReferencesOfUser();
     }
 
     @Override
     public void refreshListGroupCache(Set<String> userIds, String partitionId) {
-      // this method is empty implement in future
+        for (String userId : userIds) {
+            String key = String.format(CACHE_KEY_FORMAT, userId, partitionId);
+            // Force cache invalidation - delete the entry completely
+            awsGroupCache.deleteGroupCache(key);
+        }
     }
 
     @Override
     public void flushListGroupCacheForUser(String userId, String partitionId) {
-      // this method is empty implement in future
+        String key = String.format(CACHE_KEY_FORMAT, userId, partitionId);
+        // Force cache invalidation - delete the entry completely  
+        awsGroupCache.deleteGroupCache(key);
     }
 }

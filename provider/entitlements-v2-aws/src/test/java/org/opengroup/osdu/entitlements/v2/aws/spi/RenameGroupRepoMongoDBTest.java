@@ -30,7 +30,12 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.NodeGenerator.generateGroupNode;
 
 @DataMongoTest
@@ -86,5 +91,23 @@ class RenameGroupRepoMongoDBTest extends ParentUtil {
         Assertions.assertThrows(IllegalArgumentException.class, () -> renameGroupRepoMongoDB.run(groupNode4, null));
         Assertions.assertThrows(IllegalArgumentException.class, () -> renameGroupRepoMongoDB.run(groupNode4, " "));
         Assertions.assertThrows(IllegalArgumentException.class, () -> renameGroupRepoMongoDB.run(groupNode4, ""));
+    }
+
+    @Test
+    void testRenameGroupReturnsCorrectImpactedUsers() {
+        //given
+        EntityNode groupNode4 = generateGroupNode(4);
+        String newGroupName = "renamedGroup4";
+
+        //when
+        Set<String> impactedUsers = renameGroupRepoMongoDB.run(groupNode4, newGroupName);
+
+        //then
+        assertNotNull(impactedUsers);
+        assertFalse(impactedUsers.isEmpty());
+        // Group 4 should have users 1, 2, and 4 as members based on the default dataset
+        assertTrue(impactedUsers.contains("user-1@example.com"));
+        assertTrue(impactedUsers.contains("user-2@example.com"));
+        assertTrue(impactedUsers.contains("user-4@example.com"));
     }
 }

@@ -36,7 +36,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.opengroup.osdu.entitlements.v2.aws.Util.NodeGenerator.generateGroupNode;
 
 
@@ -104,5 +106,23 @@ class UpdateAppIdsRepoMongoDBTest extends ParentUtil {
         String testId = "testId";
         //then
         Assertions.assertThrows(IllegalArgumentException.class, () -> appIdsRepoMongoDB.updateAppIds(groupNode, Collections.emptySet()));
+    }
+
+    @Test
+    void testUpdateAppIdsReturnsCorrectImpactedUsers() {
+        //given
+        EntityNode groupNode = generateGroupNode(4);
+        Set<String> newAppIds = new HashSet<>(Arrays.asList("app1", "app2"));
+
+        //when
+        Set<String> impactedUsers = appIdsRepoMongoDB.updateAppIds(groupNode, newAppIds);
+
+        //then
+        assertNotNull(impactedUsers);
+        assertFalse(impactedUsers.isEmpty());
+        // Group 4 should have users 1, 2, and 4 as members based on the default dataset
+        assertTrue(impactedUsers.contains("user-1@example.com"));
+        assertTrue(impactedUsers.contains("user-2@example.com"));
+        assertTrue(impactedUsers.contains("user-4@example.com"));
     }
 }
