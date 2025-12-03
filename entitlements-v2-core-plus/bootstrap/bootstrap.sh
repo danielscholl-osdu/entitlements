@@ -46,6 +46,10 @@ bootstrap_entitlements_onprem() {
 {
 "aliasId": "SERVICE_PRINCIPAL_GCZ",
 "userId": "gcz@service.local"
+},
+{
+"aliasId": "SERVICE_PRINCIPAL_WORKFLOW",
+"userId": "workflow@service.local"
 }
 ]
 }

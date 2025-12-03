@@ -19,6 +19,10 @@ bootstrap_entitlements_gc_system_partition() {
 "userId": "wi-register-gc@${PROJECT_ID}.iam.gserviceaccount.com"
 },
 {
+"aliasId": "SERVICE_PRINCIPAL_WORKFLOW",
+"userId": "wi-workflow-gc@${PROJECT_ID}.iam.gserviceaccount.com"
+},
+{
 "aliasId": "SERVICE_PRINCIPAL_INDEXER",
 "userId": "wi-indexer-gc@${PROJECT_ID}.iam.gserviceaccount.com"
 },
@@ -80,6 +84,10 @@ cat <<EOF >/opt/other-partition-config.json
 {
 "aliasId": "SERVICE_PRINCIPAL_REGISTER",
 "userId": "wi-register-gc@${PROJECT_ID}.iam.gserviceaccount.com"
+},
+{
+"aliasId": "SERVICE_PRINCIPAL_WORKFLOW",
+"userId": "wi-workflow-gc@${PROJECT_ID}.iam.gserviceaccount.com"
 },
 {
 "aliasId": "SERVICE_PRINCIPAL_INDEXER",

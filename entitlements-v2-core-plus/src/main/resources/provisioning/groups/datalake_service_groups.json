@@ -1020,6 +1020,11 @@
       "members": []
     },
     {
+      "name": "workflow.secret.viewers",
+      "description": "Viewers group for Workflow to view workflow secrets",
+      "members": []
+    },
+    {
       "name": "service.gcz.viewer",
       "description": "Viewers group for GCZ service",
       "members": [
