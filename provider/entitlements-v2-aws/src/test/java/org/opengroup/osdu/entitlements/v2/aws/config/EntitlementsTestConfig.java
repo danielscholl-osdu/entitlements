@@ -54,7 +54,6 @@ public class EntitlementsTestConfig {
     }
 
     @Bean
-    @Autowired
     public BasicMongoDBHelper mongoHelper(MongoTemplate mongoTemplate) {
         return new BasicMongoDBHelper(mongoTemplate);
     }

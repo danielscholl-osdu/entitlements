@@ -17,12 +17,14 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc;
 
+import static org.mockito.Mockito.mock;
+
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.RequestInfo;
 import org.opengroup.osdu.core.common.partition.IPartitionFactory;
 import org.opengroup.osdu.core.common.partition.IPartitionProvider;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,15 +35,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SpiJdbcTestConfig {
 
-    @MockBean
-    private RequestInfo requestInfo;
-    @MockBean
-    private JaxRsDpsLog logger;
-    @MockBean
-    private IPartitionFactory partitionFactory;
-    @MockBean
-    private IPartitionProvider iPartitionProvider;
-    @MockBean
-    private IAuthenticator iAuthenticator;
+    @Bean
+    public RequestInfo requestInfo() {
+        return mock(RequestInfo.class);
+    }
+
+    @Bean
+    public JaxRsDpsLog logger() {
+        return mock(JaxRsDpsLog.class);
+    }
+
+    @Bean
+    public IPartitionFactory partitionFactory() {
+        return mock(IPartitionFactory.class);
+    }
+
+    @Bean
+    public IPartitionProvider partitionProvider() {
+        return mock(IPartitionProvider.class);
+    }
+
+    @Bean
+    public IAuthenticator authenticator() {
+        return mock(IAuthenticator.class);
+    }
 
 }
