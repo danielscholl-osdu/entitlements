@@ -103,6 +103,7 @@ The following software have components provided under the terms of this license:
 - Apache TinkerPop :: TinkerGraph Gremlin (from https://repo1.maven.org/maven2/org/apache/tinkerpop/tinkergraph-gremlin)
 - AssertJ Core (from https://assertj.github.io/doc/#assertj-core)
 - Asynchronous Http Client (from https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client)
+- Asynchronous Http Client Netty Utils (from https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client-netty-utils)
 - AutoValue Annotations (from https://github.com/google/auto/tree/main/value, https://github.com/google/auto/tree/master/value, https://repo1.maven.org/maven2/com/google/auto/value/auto-value-annotations)
 - Awaitility (from http://awaitility.org)
 - Awaitility Proxy (from http://awaitility.org)
@@ -184,6 +185,7 @@ The following software have components provided under the terms of this license:
 - Mockito (from http://mockito.org, http://www.mockito.org, https://github.com/mockito/mockito)
 - MongoDB Driver (from https://www.mongodb.com/)
 - MongoDB Java Driver (from http://mongodb.org/, http://www.mongodb.org, https://www.mongodb.com/)
+- Netty Reactive Streams Implementation (from https://repo1.maven.org/maven2/com/typesafe/netty/netty-reactive-streams)
 - Netty/All-in-One (from https://netty.io/netty-all/, https://repo1.maven.org/maven2/io/netty/netty-all)
 - Netty/Buffer (from https://repo1.maven.org/maven2/io/netty/netty-buffer)
 - Netty/Codec (from https://repo1.maven.org/maven2/io/netty/netty-codec)
@@ -329,7 +331,6 @@ The following software have components provided under the terms of this license:
 
 - ANTLR 4 Runtime (from https://repo1.maven.org/maven2/org/antlr/antlr4-runtime)
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
-- Hamcrest Core (from http://hamcrest.org/, http://hamcrest.org/JavaHamcrest/, https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
 - Jodd Util (from https://util.jodd.org)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
@@ -645,7 +646,6 @@ public-domain
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- JBoss Logging 3 (from http://www.jboss.org)
 - JSON in Java (from https://github.com/douglascrockford/JSON-java)
 - PostgreSQL JDBC Driver (from https://jdbc.postgresql.org)
 

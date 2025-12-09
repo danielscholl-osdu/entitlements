@@ -32,7 +32,6 @@ import org.springframework.context.annotation.Configuration;
 public class MongoConfig {
 
     @Bean
-    @Autowired
     public BasicMongoDBHelper mongoHelper(MongoDBSimpleFactory mongoDBSimpleFactory, MongoPropertiesDefaultReader propertiesReader) {
         return mongoDBSimpleFactory.getHelper(propertiesReader.getProperties());
     }
