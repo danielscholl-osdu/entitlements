@@ -68,8 +68,17 @@ public class AddMemberRepoMongoDB extends BasicEntitlementsHelper implements Add
 
         // adding Group node to other group
         if (addMemberRepoDtoMDB.getMemberNode().getType() == NodeType.GROUP) {
-            GroupDoc groupForAddingToGroup = conversionService.convert(addMemberRepoDtoMDB.getMemberNode(), GroupDoc.class);
-            groupForAddingToGroup = groupHelper.getById(groupForAddingToGroup.getId());
+            GroupDoc convertedGroup = conversionService.convert(addMemberRepoDtoMDB.getMemberNode(), GroupDoc.class);
+            if (convertedGroup == null) {
+                throw ExceptionGenerator.groupIsNull();
+            }
+            
+            IdDoc groupId = convertedGroup.getId();
+            GroupDoc groupForAddingToGroup = groupHelper.getById(groupId);
+            
+            if (groupForAddingToGroup == null) {
+                throw ExceptionGenerator.groupIsNull();
+            }
 
             NodeRelationDoc groupToParentGroupRelation = new NodeRelationDoc(groupToAddMember.getId(), Role.MEMBER);
             groupHelper.addDirectRelation(groupForAddingToGroup.getId(), groupToParentGroupRelation);

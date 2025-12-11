@@ -17,7 +17,7 @@
 package org.opengroup.osdu.entitlements.v2.util;
 
 import com.google.common.base.Strings;
-import org.opengroup.osdu.core.aws.cognito.AWSCognitoClient;
+import org.opengroup.osdu.core.aws.v2.cognito.AWSCognitoClient;
 import org.opengroup.osdu.core.aws.entitlements.ServicePrincipal;
 import org.opengroup.osdu.entitlements.v2.acceptance.model.Token;
 import org.opengroup.osdu.entitlements.v2.acceptance.util.TokenService;
