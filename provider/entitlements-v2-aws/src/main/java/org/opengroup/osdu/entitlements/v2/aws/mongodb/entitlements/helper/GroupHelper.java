@@ -18,7 +18,7 @@
 package org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.helper;
 
 import com.google.common.collect.Sets;
-import org.opengroup.osdu.core.aws.mongodb.helper.BasicMongoDBHelper;
+import org.opengroup.osdu.core.aws.v2.mongodb.helper.BasicMongoDBHelper;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.GroupDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.IdDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.NodeRelationDoc;

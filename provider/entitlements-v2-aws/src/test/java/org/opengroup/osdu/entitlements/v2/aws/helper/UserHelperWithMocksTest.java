@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.aws.mongodb.helper.BasicMongoDBHelper;
+import org.opengroup.osdu.core.aws.v2.mongodb.helper.BasicMongoDBHelper;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.UserDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.IdDoc;

@@ -119,6 +119,22 @@ class AddMemberRepoMongoDBTest extends ParentUtil {
         // when
         Assertions.assertThrows(IllegalArgumentException.class, () -> addMemberRepo.addMember(groupNode, dto));
     }
+    
+    @Test
+    void addingNonExistentGroupMember() {
+        // given
+        Role role = Role.MEMBER;
+        EntityNode parentGroupNode = generateGroupNode(4); // existing group
+        EntityNode childGroupNode = generateGroupNode(123); // non-existent group
+        AddMemberRepoDto dto = AddMemberRepoDto.builder()
+                .partitionId(DATA_PARTITION)
+                .memberNode(childGroupNode)
+                .role(role)
+                .build();
+
+        // when & then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> addMemberRepo.addMember(parentGroupNode, dto));
+    }
 
     @Test
     void addingUserMember_ReturnsImpactedUser() {
