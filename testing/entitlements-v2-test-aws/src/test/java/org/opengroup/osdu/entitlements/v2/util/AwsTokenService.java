@@ -31,8 +31,11 @@ public class AwsTokenService implements TokenService {
 
     private static String TOKEN;
     private static String NO_ACC_TOKEN;
+    private static String ADMIN_TOKEN;
     private static final String SERVICE_PRINCIPAL_EMAIL =  System.getProperty("SERVICE_PRINCIPAL_EMAIL", System.getenv("SERVICE_PRINCIPAL_EMAIL"));
     public static final String NO_ACCESS_USER = System.getProperty("AWS_COGNITO_AUTH_PARAMS_USER_NO_ACCESS", System.getenv("AWS_COGNITO_AUTH_PARAMS_USER_NO_ACCESS"));
+    public static final String ADMIN_USER = System.getProperty("AWS_COGNITO_AUTH_PARAMS_USER", System.getenv("AWS_COGNITO_AUTH_PARAMS_USER"));
+    public static final String DOMAIN = System.getProperty("DOMAIN", System.getenv("DOMAIN"));
 
     // Private constructor to prevent direct instantiation
     private AwsTokenService() {
@@ -77,6 +80,21 @@ public class AwsTokenService implements TokenService {
         return Token.builder()
                 .value(NO_ACC_TOKEN)
                 .userId(NO_ACCESS_USER)
+                .build();
+    }
+
+    /**
+     * Returns token of an admin user
+     */
+    public synchronized Token getAdminToken() {
+        if (Strings.isNullOrEmpty(ADMIN_TOKEN)) {
+            String adminToken = cognitoClient.getTokenForUserWithAccess();
+            adminToken = adminToken.replace("Bearer ","");
+            ADMIN_TOKEN = adminToken;
+        }
+        return Token.builder()
+                .value(ADMIN_TOKEN)
+                .userId(ADMIN_USER)
                 .build();
     }
 

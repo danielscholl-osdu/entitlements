@@ -22,6 +22,7 @@ import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.UserDo
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.IdDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.NodeRelationDoc;
 import org.opengroup.osdu.entitlements.v2.aws.util.ExceptionGenerator;
+import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.spi.Operation;
 import org.opengroup.osdu.entitlements.v2.spi.deletegroup.DeleteGroupRepo;
@@ -49,9 +50,17 @@ public class DeleteGroupRepoMongoDB extends BasicEntitlementsHelper implements D
 
         // Get impacted users BEFORE deleting the group
         Set<String> impactedUsers = new HashSet<>();
-        Set<IdDoc> childUserIds = userHelper.getAllChildUsers(groupToRemove.getId());
-        for (IdDoc childUserId : childUserIds) {
-            impactedUsers.add(childUserId.getNodeId());
+        
+        // 1. Get ALL users who are direct or indirect members of this group (recursive children)
+        getAllChildUsersRecursively(groupToRemove.getId(), impactedUsers, new HashSet<>());
+        
+        // 2. Get direct users who are members of immediate parent groups only
+        // Their effective group lists change when this child group is deleted
+        for (NodeRelationDoc parentRelation : groupToRemove.getDirectParents()) {
+            Set<IdDoc> parentGroupMembers = userHelper.getAllChildUsers(parentRelation.getParentId());
+            for (IdDoc parentMemberId : parentGroupMembers) {
+                impactedUsers.add(parentMemberId.getNodeId());
+            }
         }
 
         Set<IdDoc> usersToUpdateParentRelations = userHelper.getAllChildUsers(groupToRemove.getId());
@@ -72,6 +81,33 @@ public class DeleteGroupRepoMongoDB extends BasicEntitlementsHelper implements D
 
         groupHelper.delete(groupToRemove.getId());
         return impactedUsers;
+    }
+    
+    /**
+     * Recursively get all users who are members of a group (including through nested child groups)
+     */
+    private void getAllChildUsersRecursively(IdDoc groupId, Set<String> impactedUsers, Set<String> visitedGroups) {
+        String groupKey = groupId.getNodeId() + "@" + groupId.getDataPartitionId();
+        if (visitedGroups.contains(groupKey)) {
+            return; // Avoid infinite loops
+        }
+        visitedGroups.add(groupKey);
+        
+        // Get all direct users who are members of this group
+        Set<IdDoc> directUsers = userHelper.getAllChildUsers(groupId);
+        for (IdDoc userId : directUsers) {
+            impactedUsers.add(userId.getNodeId());
+        }
+        
+        // Get all child groups and recursively get their users
+        Set<ChildrenReference> childGroups = groupHelper.getDirectChildren(groupId);
+        for (ChildrenReference childGroup : childGroups) {
+            // Process child groups (handle null type case for groups like root data group)
+            if (childGroup.isGroup() || childGroup.getType() == null) {
+                IdDoc childGroupId = new IdDoc(childGroup.getId(), childGroup.getDataPartitionId());
+                getAllChildUsersRecursively(childGroupId, impactedUsers, visitedGroups);
+            }
+        }
     }
 
     @Override
