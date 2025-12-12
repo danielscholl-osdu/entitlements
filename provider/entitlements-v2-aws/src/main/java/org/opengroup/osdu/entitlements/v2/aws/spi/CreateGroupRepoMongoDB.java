@@ -20,6 +20,7 @@ package org.opengroup.osdu.entitlements.v2.aws.spi;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.GroupDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.UserDoc;
+import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.IdDoc;
 import org.opengroup.osdu.entitlements.v2.aws.mongodb.entitlements.entity.internal.NodeRelationDoc;
 import org.opengroup.osdu.entitlements.v2.aws.util.ExceptionGenerator;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
@@ -90,6 +91,17 @@ public class CreateGroupRepoMongoDB extends BasicEntitlementsHelper implements C
         // Return impacted users - the requester who created the group
         Set<String> impactedUsers = new HashSet<>();
         impactedUsers.add(createGroupRequest.getRequesterNode().getNodeId());
+        
+        // Add all members of the root data group when hierarchy is used
+        // Their effective group lists change when new child groups are added
+        if (createGroupRequest.isAddDataRootGroup() && rootGroup != null) {
+            // Get all users who are members of the root data group
+            Set<IdDoc> rootGroupMembers = userHelper.getAllChildUsers(rootGroup.getId());
+            rootGroupMembers.forEach(memberId -> {
+                impactedUsers.add(memberId.getNodeId());
+            });
+        }
+        
         return impactedUsers;
     }
 

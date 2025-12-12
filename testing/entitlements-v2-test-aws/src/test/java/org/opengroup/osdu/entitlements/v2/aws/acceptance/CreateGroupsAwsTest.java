@@ -16,14 +16,62 @@
 
 package org.opengroup.osdu.entitlements.v2.aws.acceptance;
 
-
+import org.junit.Test;
 import org.opengroup.osdu.entitlements.v2.acceptance.CreateGroupTest;
+import org.opengroup.osdu.entitlements.v2.acceptance.model.GroupItem;
+import org.opengroup.osdu.entitlements.v2.acceptance.model.GroupType;
+import org.opengroup.osdu.entitlements.v2.acceptance.model.Token;
+import org.opengroup.osdu.entitlements.v2.acceptance.model.request.GetGroupsRequestData;
+import org.opengroup.osdu.entitlements.v2.acceptance.model.response.ListGroupResponse;
 import org.opengroup.osdu.entitlements.v2.util.AwsConfigurationService;
 import org.opengroup.osdu.entitlements.v2.util.AwsTokenService;
+
+import static org.junit.Assert.assertTrue;
 
 public class CreateGroupsAwsTest extends CreateGroupTest {
 
     public CreateGroupsAwsTest() {
         super(new AwsConfigurationService(), AwsTokenService.getInstance());
+    }
+
+    @Test
+    public void testServicePrincipalCacheInvalidationOnDataGroupCreate() throws Exception {
+        String servicePrincipalEmail = System.getenv("SERVICE_PRINCIPAL_EMAIL");
+        String domain = System.getenv("DOMAIN");
+        if (servicePrincipalEmail == null || servicePrincipalEmail.isEmpty()) {
+            servicePrincipalEmail = "users.data.root@" + configurationService.getTenantId() + "." + (domain != null ? domain : "example.com");
+        }
+
+        // Use admin user token for group operations
+        AwsTokenService awsTokenService = (AwsTokenService) tokenService;
+        Token adminToken = awsTokenService.getAdminToken();
+        Token spToken = tokenService.getToken(); // Service principal token for checking groups
+        
+        String groupName = "data.cache-test-" + currentTime;
+        String expectedGroupEmail = configurationService.getIdOfGroup(groupName);
+
+        // Get service principal groups before creating new group using the existing getGroups method
+        GetGroupsRequestData getGroupsRequest = GetGroupsRequestData.builder()
+                .memberEmail(servicePrincipalEmail)
+                .type(GroupType.DATA)
+                .build();
+        ListGroupResponse groupsBefore = entitlementsV2Service.getGroups(getGroupsRequest, spToken.getValue());
+        boolean groupExistsBeforeCreate = groupsBefore.getGroups().stream()
+                .anyMatch(group -> group.getEmail().equals(expectedGroupEmail));
+
+        // Create the data group using admin user
+        GroupItem createdGroup = entitlementsV2Service.createGroup(groupName, adminToken.getValue());
+
+        // Immediately check if service principal can see the new group (cache should be invalidated)
+        ListGroupResponse groupsAfter = entitlementsV2Service.getGroups(getGroupsRequest, spToken.getValue());
+        boolean groupExistsAfterCreate = groupsAfter.getGroups().stream()
+                .anyMatch(group -> group.getEmail().equals(expectedGroupEmail));
+
+        // Cleanup using admin user
+        entitlementsV2Service.deleteGroup(expectedGroupEmail, adminToken.getValue());
+
+        // Assertions
+        assertTrue("Group should not exist in service principal's groups before creation", !groupExistsBeforeCreate);
+        assertTrue("Service principal should immediately see the new data group after creation (cache invalidated)", groupExistsAfterCreate);
     }
 }
