@@ -1025,6 +1025,11 @@
       "members": []
     },
     {
+      "name": "workflow.secret.owners",
+      "description": "Owners group for Workflow to view workflow secrets",
+      "members": []
+    },
+    {
       "name": "service.gcz.viewer",
       "description": "Viewers group for GCZ service",
       "members": [
