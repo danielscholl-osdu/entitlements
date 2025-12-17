@@ -108,6 +108,13 @@
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
       </dependency>
+
+      <!-- Security: CVE-2025-48734 fix - override transitive dependency -->
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.11.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
