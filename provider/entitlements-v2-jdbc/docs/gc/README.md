@@ -89,19 +89,21 @@ used for token validation.
 will be used inside secured perimeter with service to service communication and IAP tokens
 verification that came with users requests.
 
-| name                                 | value                                                                                                   | description                                      | sensitive? | source |
-|--------------------------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------|------------|--------|
-| `IAP_PROVIDER_JWT_HEADER`            | ex `x-goog-iap-jwt-assertion`                                                                           | Header that will contain IAP token               | no         | -      |
-| `IAP_PROVIDER_USER_ID_HEADER`        | ex `x-goog-authenticated-user-email`                                                                    | Header that will contain user email added by IAP | no         | -      |
-| `IAP_PROVIDER_ISSUER_URL`            | ex `https://cloud.google.com/iap`                                                                       | IAP issuer url                                   | no         | -      |
-| `IAP_PROVIDER_AUD`                   | ex `/projects/${iap.provider.project-number}/global/backendServices/${iap.provider.backend-service-id}` | IAP client id(audiences)                         | no         | -      |
-| `IAP_PROVIDER_PROJECT_NUMBER`        | ex `12345`                                                                                              | Google project number                            | no         | -      |
-| `IAP_PROVIDER_BACKEND_SERVICE_ID`    | ex `12345`                                                                                              | Google backend service id                        | no         | -      |
-| `IAP_PROVIDER_JWK_URL`               | ex `https://www.gstatic.com/iap/verify/public_key-jwk`                                                  | IAP jwk url                                      | no         | -      |
-| `IAP_PROVIDER_ALGORITHM`             | ex `ES256`                                                                                              | IAP token algorithm                              | no         | -      |
-| `OPENID_PROVIDER_URL`                | ex `https://accounts.google.com`                                                                        | OpenID provider                                  | no         | -      |
-| `OPENID_PROVIDER_ALGORITHM`          | ex `RS256`                                                                                              | OpenID token algorithm                           | no         | -      |
-| `OPENID_PROVIDER_USER_ID_CLAIM_NAME` | ex `email`                                                                                              | OpenID user id claim name                        | no         | -      |
+| name                                 | value                                                                                                   | description                                                   | sensitive? | source |
+|--------------------------------------|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|------------|--------|
+| `IAP_PROVIDER_JWT_HEADER`            | ex `x-goog-iap-jwt-assertion`                                                                           | Header that will contain IAP token                            | no         | -      |
+| `IAP_PROVIDER_USER_ID_HEADER`        | ex `x-goog-authenticated-user-email`                                                                    | Header that will contain user email added by IAP              | no         | -      |
+| `IAP_PROVIDER_ISSUER_URL`            | ex `https://cloud.google.com/iap`                                                                       | IAP issuer url                                                | no         | -      |
+| `IAP_PROVIDER_AUD`                   | ex `/projects/${iap.provider.project-number}/global/backendServices/${iap.provider.backend-service-id}` | IAP client id(audiences)                                      | no         | -      |
+| `IAP_PROVIDER_PROJECT_NUMBER`        | ex `12345`                                                                                              | Google project number                                         | no         | -      |
+| `IAP_PROVIDER_BACKEND_SERVICE_ID`    | ex `12345`                                                                                              | Google backend service id                                     | no         | -      |
+| `IAP_PROVIDER_JWK_URL`               | ex `https://www.gstatic.com/iap/verify/public_key-jwk`                                                  | IAP jwk url                                                   | no         | -      |
+| `IAP_PROVIDER_ALGORITHM`             | ex `ES256`                                                                                              | IAP token algorithm                                           | no         | -      |
+| `OPENID_PROVIDER_URL`                | ex `https://accounts.google.com`                                                                        | OpenID provider                                               | no         | -      |
+| `OPENID_PROVIDER_ALGORITHM`          | ex `RS256`                                                                                              | OpenID token algorithm                                        | no         | -      |
+| `OPENID_PROVIDER_USER_ID_CLAIM_NAME` | ex `email`                                                                                              | OpenID user id claim name                                     | no         | -      |
+| `OTEL_JAVAAGENT_ENABLED`             | ex `true` or `false`                                                                                    | `true` - OpenTelemetry Java agent enabled, `false` - disabled | no         |        |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`        | ex `http://127.0.0.1:4318`                                                                              | OpenTelemetry collector endpoint                              | no         |        |
 
 **EXTERNAL**  Use it with enabled external authentication method, this mode use combined
 authentication with OpenID provider, if the request will contain both token and user-id header
@@ -153,6 +155,29 @@ TBD
 | Required roles |
 |----------------|
 | -              |
+
+## Monitoring
+### OpenTelemetry Integration
+
+The opentelemetry-javaagent.jar file is the OpenTelemetry Java agent. It is used to
+automatically instrument the Java application at runtime, without requiring manual changes
+to the source code.
+
+This provides critical observability features:
+* Distributed Tracing: To trace the path of requests as they travel across different
+  services.
+* Metrics: To capture performance indicators and application-level metrics.
+* Logs: To correlate logs with traces and other telemetry data.
+
+Enabling this agent makes it significantly easier to monitor, debug, and manage the
+application in development and production environments. The agent is activated by the
+startup.sh script when the OTEL_JAVAAGENT_ENABLED environment variable is set to true.
+
+The agent is available from the official OpenTelemetry GitHub repository. It is
+recommended to use the latest stable version.
+
+Official Download Page:
+https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
 
 ## License
 
