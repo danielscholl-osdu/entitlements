@@ -33,7 +33,7 @@ public class OpenIDProviderConfig {
     private String noAccessClientSecret;
     private String dataRootClientSecret;
     private String intTesterEmail;
-    private final String[] scopes = {"openid"};
+    private String[] scopes = {"openid"};
     private static final OpenIDProviderConfig openIDProviderConfig = new OpenIDProviderConfig();
     private static OIDCProviderMetadata providerMetadata;
 
@@ -47,6 +47,11 @@ public class OpenIDProviderConfig {
             openIDProviderConfig.noAccessClientSecret = System.getProperty("NO_ACCESS_USER_OPENID_PROVIDER_CLIENT_SECRET", System.getenv("NO_ACCESS_USER_OPENID_PROVIDER_CLIENT_SECRET"));
             openIDProviderConfig.dataRootClientSecret = System.getProperty("ROOT_USER_OPENID_PROVIDER_CLIENT_SECRET", System.getenv("ROOT_USER_OPENID_PROVIDER_CLIENT_SECRET"));
             openIDProviderConfig.intTesterEmail = System.getProperty("INTEGRATION_TESTER_EMAIL", System.getenv("INTEGRATION_TESTER_EMAIL"));
+            // Override default scope if provided
+            String scopeEnv = System.getProperty("PRIVILEGED_USER_OPENID_PROVIDER_SCOPE", System.getenv("PRIVILEGED_USER_OPENID_PROVIDER_SCOPE"));
+            if (scopeEnv != null && !scopeEnv.isEmpty()) {
+                openIDProviderConfig.scopes = new String[]{scopeEnv};
+            }
             Issuer issuer = new Issuer(openIDProviderConfig.url);
             OIDCProviderConfigurationRequest request = new OIDCProviderConfigurationRequest(issuer);
             HTTPRequest httpRequest = request.toHTTPRequest();
