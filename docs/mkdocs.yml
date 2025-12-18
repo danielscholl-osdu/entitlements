@@ -44,3 +44,4 @@ nav:
   - Configuration:
       - JDBC Entitlements: 'JDBC.md'
       - Envoy Filter Headers: 'Envoy-Filter-Headers.md'
+  - Allure reports: 'allure_reports.md'
