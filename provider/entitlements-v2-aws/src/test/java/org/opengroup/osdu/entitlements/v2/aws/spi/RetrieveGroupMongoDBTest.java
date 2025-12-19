@@ -331,6 +331,5 @@ class RetrieveGroupMongoDBTest extends ParentUtil {
 
         ListGroupsOfPartitionDto groupsInPartition = retrieveGroupMongoDB.getGroupsInPartition(DATA_PARTITION, GroupType.NONE, null, 100);
         assertEquals(9, groupsInPartition.getTotalCount());
-        
     }
 }

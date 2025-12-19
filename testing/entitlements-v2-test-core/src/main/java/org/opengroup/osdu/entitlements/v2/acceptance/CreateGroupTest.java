@@ -44,10 +44,20 @@ public abstract class CreateGroupTest extends AcceptanceBaseTest {
         boolean rootIsMemberOfDataGroup = isSecondGroupMemberofFirst(createdEmail, rootEmail, token);
         boolean dataGroupIsMemberOfRoot = isSecondGroupMemberofFirst(rootEmail, createdEmail, token);
 
-        assertNotEquals("Ensure that the flag to disable the automatic add of the root group to newly created data groups is enabled (flag name: `disable-data-root-group-hierarchy`)",
-                    dataGroupIsMemberOfRoot, rootIsMemberOfDataGroup);
-        assertFalse("Ensure that the newly created data group is NOT a member of the root group", dataGroupIsMemberOfRoot);
-        assertTrue("Ensure that the root group is a member of the newly created data group", rootIsMemberOfDataGroup);
+        // Check if disable-data-root-group-hierarchy feature flag is enabled
+        boolean isFeatureFlagEnabled = configurationService.isFeatureFlagEnabled("disable-data-root-group-hierarchy");
+        
+        if (isFeatureFlagEnabled) {
+            // When feature flag is ON: no explicit hierarchy links should exist
+            assertFalse("When disable-data-root-group-hierarchy is enabled, root group should NOT be a member of the newly created data group", rootIsMemberOfDataGroup);
+            assertFalse("When disable-data-root-group-hierarchy is enabled, newly created data group should NOT be a member of the root group", dataGroupIsMemberOfRoot);
+        } else {
+            // When feature flag is OFF: old behavior with explicit hierarchy
+            assertNotEquals("Ensure that the flag to disable the automatic add of the root group to newly created data groups is enabled (flag name: `disable-data-root-group-hierarchy`)",
+                        dataGroupIsMemberOfRoot, rootIsMemberOfDataGroup);
+            assertFalse("Ensure that the newly created data group is NOT a member of the root group", dataGroupIsMemberOfRoot);
+            assertTrue("Ensure that the root group is a member of the newly created data group", rootIsMemberOfDataGroup);
+        }
     }
 
     @Test

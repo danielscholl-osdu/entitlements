@@ -28,8 +28,6 @@ public abstract class BasicEntitlementsHelper {
     public static final String NODE_ID = "_id.nodeId";
     public static final String NAME = "name";
     public static final String TYPE = "type";
-    public static final String PARENTS = "parents";
-    public static final String CHILDREN = "children";
     public static final String APP_IDS = "appIds";
     public static final String DIRECT_PARENTS = "directParents";
     public static final String MEMBER_OF = "memberOf";
