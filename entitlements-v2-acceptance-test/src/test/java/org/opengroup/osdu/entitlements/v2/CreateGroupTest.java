@@ -58,10 +58,18 @@ public class CreateGroupTest extends AcceptanceBaseTest {
         boolean rootIsMemberOfDataGroup = isSecondGroupMemberofFirst(createdEmail, rootEmail, token);
         boolean dataGroupIsMemberOfRoot = isSecondGroupMemberofFirst(rootEmail, createdEmail, token);
 
-        assertNotEquals("Ensure that the flag to disable the automatic add of the root group to newly created data groups is enabled (flag name: `disable-data-root-group-hierarchy`)",
-                    dataGroupIsMemberOfRoot, rootIsMemberOfDataGroup);
-        assertFalse("Ensure that the newly created data group is NOT a member of the root group", dataGroupIsMemberOfRoot);
-        assertTrue("Ensure that the root group is a member of the newly created data group", rootIsMemberOfDataGroup);
+        // Check if disable-data-root-group-hierarchy feature flag is enabled
+        boolean isFeatureFlagEnabled = configurationService.isFeatureFlagEnabled("disable-data-root-group-hierarchy");
+        
+        if (isFeatureFlagEnabled) {
+            // Feature flag is ON: no explicit hierarchy links should exist
+            assertFalse("With disable-data-root-group-hierarchy enabled, root group should NOT be a member of the newly created data group", rootIsMemberOfDataGroup);
+            assertFalse("With disable-data-root-group-hierarchy enabled, newly created data group should NOT be a member of the root group", dataGroupIsMemberOfRoot);
+        } else {
+            // Feature flag is OFF: old behavior with explicit hierarchy
+            assertFalse("Ensure that the newly created data group is NOT a member of the root group", dataGroupIsMemberOfRoot);
+            assertTrue("Ensure that the root group is a member of the newly created data group", rootIsMemberOfDataGroup);
+        }
     }
 
     @Test
