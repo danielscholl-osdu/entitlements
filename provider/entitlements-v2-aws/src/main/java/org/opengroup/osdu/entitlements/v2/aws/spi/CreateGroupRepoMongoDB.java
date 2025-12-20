@@ -97,9 +97,7 @@ public class CreateGroupRepoMongoDB extends BasicEntitlementsHelper implements C
         if (createGroupRequest.isAddDataRootGroup() && rootGroup != null) {
             // Get all users who are members of the root data group
             Set<IdDoc> rootGroupMembers = userHelper.getAllChildUsers(rootGroup.getId());
-            rootGroupMembers.forEach(memberId -> {
-                impactedUsers.add(memberId.getNodeId());
-            });
+            rootGroupMembers.forEach(memberId -> impactedUsers.add(memberId.getNodeId()));
         }
         
         return impactedUsers;
