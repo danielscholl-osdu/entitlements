@@ -9,8 +9,8 @@
         <redisson.version>3.13.2</redisson.version>
         <protobuf-java.version>3.12.4</protobuf-java.version>
         <openapi.version>2.8.14</openapi.version>
-        <jackson-databind.version>2.18.1</jackson-databind.version>
-        <jackson.version>2.18.1</jackson.version>
+        <jackson-databind.version>2.18.5</jackson-databind.version>
+        <jackson.version>2.18.5</jackson.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <os-core-common.version>4.0.0</os-core-common.version>
