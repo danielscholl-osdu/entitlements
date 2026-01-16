@@ -36,6 +36,7 @@ import org.opengroup.osdu.entitlements.v2.model.removemember.RemoveMemberService
 import org.opengroup.osdu.entitlements.v2.spi.removemember.RemoveMemberRepo;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -51,6 +52,7 @@ public class RemoveMemberRepoJdbc implements RemoveMemberRepo {
     private final JdbcTemplateRunner jdbcTemplateRunner;
 
     @Override
+    @Transactional
     public Set<String> removeMember(EntityNode groupNode, EntityNode memberNode, RemoveMemberServiceDto removeMemberServiceDto) {
         try {
             Set<String> affectedMembers = executeRemoveMemberOperation(groupNode, memberNode);

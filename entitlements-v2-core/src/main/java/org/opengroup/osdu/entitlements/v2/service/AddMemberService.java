@@ -18,6 +18,7 @@ import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeType;
 import org.opengroup.osdu.entitlements.v2.service.featureflag.FeatureFlag;
 import org.opengroup.osdu.entitlements.v2.service.featureflag.PartitionFeatureFlagService;
 import org.opengroup.osdu.entitlements.v2.spi.addmember.AddMemberRepo;
+import org.opengroup.osdu.entitlements.v2.util.GroupEmailUtil;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,7 +96,7 @@ public class AddMemberService {
     }
 
     private EntityNode createNewMemberNode(String memberPrimaryId, String memberDesId, String partitionId) {
-        if (!memberPrimaryId.endsWith(String.format("@%s.%s", partitionId, config.getDomain()))) {
+        if (!GroupEmailUtil.isGroupEmail(memberPrimaryId, partitionId, config.getDomain())) {
             return EntityNode.createMemberNodeForNewUser(memberDesId, partitionId);
         } else {
             throw new AppException(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), String.format("Member group %s not found", memberPrimaryId));
