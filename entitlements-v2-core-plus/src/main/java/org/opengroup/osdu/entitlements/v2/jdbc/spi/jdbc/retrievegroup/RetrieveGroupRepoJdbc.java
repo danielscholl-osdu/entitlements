@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
@@ -47,6 +49,7 @@ import org.opengroup.osdu.entitlements.v2.model.ParentReference;
 import org.opengroup.osdu.entitlements.v2.model.ParentTreeDto;
 import org.opengroup.osdu.entitlements.v2.model.listgroup.ListGroupsOfPartitionDto;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
+import org.opengroup.osdu.entitlements.v2.util.GroupEmailUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -148,7 +151,7 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
 
   @Override
   public EntityNode getMemberNodeForRemovalFromGroup(String memberId, String partitionId) {
-    if (!memberId.endsWith(String.format("@%s.%s", partitionId, config.getDomain()))) {
+    if (!GroupEmailUtil.isGroupEmail(memberId, partitionId, config.getDomain())) {
       return EntityNode.createMemberNodeForNewUser(memberId, partitionId);
     }
     return EntityNode.createNodeFromGroupEmail(memberId);
@@ -184,17 +187,39 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
   }
 
   @Override
-  public List<ParentReference> loadDirectParents(String partitionId, String... nodeId) {
-    //The method is used in JDBC module only for members and does not provide a solution
-    // to identify the type of the node.
-    //Should be reworked later
-    List<Long> childrenIds = memberRepository.findByEmail(nodeId[0]).stream()
-        .map(MemberInfoEntity::getId)
-        .toList();
+  public List<ParentReference> loadDirectParents(String partitionId, String... nodeIds) {
+      List<ParentReference> parentRefs = new ArrayList<>();
+      for (String nodeId : nodeIds) {
+          List<Long> nodeMemberIds = memberRepository.findByEmail(nodeId).stream()
+              .map(MemberInfoEntity::getId)
+              .toList();
 
-    return groupRepository.findDirectGroups(childrenIds).stream()
-        .map(GroupInfoEntity::toParentReference)
-        .toList();
+          Stream<GroupInfoEntity> parentGroupInfo = Stream.<GroupInfoEntity>empty();
+
+          // It's a member - query member table for parent groups
+          if (!nodeMemberIds.isEmpty()) {
+              parentGroupInfo = groupRepository.findDirectGroups(nodeMemberIds).stream();
+          }
+
+          // Check if it's a group email (ends with @partition.domain)
+          if (GroupEmailUtil.isGroupEmail(nodeId, partitionId, config.getDomain())) {
+              // It matches the pattern for a group, so query group table for parent groups
+              List<Long> groupChildrenIds = groupRepository.findByEmail(nodeId).stream()
+                  .map(GroupInfoEntity::getId)
+                  .toList();
+              
+              if (!groupChildrenIds.isEmpty()) {
+                  parentGroupInfo = Stream.concat(parentGroupInfo,
+                      groupRepository.findDirectParents(groupChildrenIds).stream());
+              }
+          }
+
+          // Collect all of the parent references
+          parentGroupInfo.map(GroupInfoEntity::toParentReference)
+                  .forEach(parentRefs::add);
+      }
+
+      return parentRefs;
   }
 
   @Override
@@ -231,7 +256,7 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
 
     List<ChildrenReference> children = groupRepository.findDirectChildren(parentIds).stream()
         .map(GroupInfoEntity::toChildrenReference)
-        .collect(Collectors.toList());
+        .toList();
     List<ChildrenReference> members = parentIds.stream()
         .flatMap(id -> memberRepository.findMembersByGroup(id).stream())
         .map(MemberInfoEntity::toChildrenReference)
