@@ -14,6 +14,7 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.service;
 
+import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
 import org.opengroup.osdu.entitlements.v2.service.MemberCacheService;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberCacheServiceJdbc implements MemberCacheService {
 
-    //default implementation exists in the interface and methods will be implemented in future
+    private final GroupCacheService groupCacheService;
 
+    @Override
+    public void flushListMemberCacheForGroup(String groupId, String partitionId) {
+        groupCacheService.flushListGroupCacheForUser(groupId, partitionId);
+    }
 }

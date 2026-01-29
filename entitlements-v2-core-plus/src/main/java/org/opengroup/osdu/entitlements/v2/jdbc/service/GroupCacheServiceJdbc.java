@@ -26,6 +26,7 @@ import org.opengroup.osdu.entitlements.v2.model.ParentReference;
 import org.opengroup.osdu.entitlements.v2.model.ParentReferences;
 import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
+import org.opengroup.osdu.entitlements.v2.util.GroupEmailUtil;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -68,7 +69,7 @@ public class GroupCacheServiceJdbc implements GroupCacheService {
     }
 
     private EntityNode getNodeByNodeType(String memberId, String partitionId) {
-        return memberId.endsWith(String.format("@%s.%s", partitionId, config.getDomain()))
+        return GroupEmailUtil.isGroupEmail(memberId, partitionId, config.getDomain())
             ? EntityNode.createNodeFromGroupEmail(memberId)
             : EntityNode.createMemberNodeForNewUser(memberId, partitionId);
     }

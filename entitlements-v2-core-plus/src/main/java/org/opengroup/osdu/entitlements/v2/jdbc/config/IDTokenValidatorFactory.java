@@ -51,7 +51,18 @@ public class IDTokenValidatorFactory {
     Issuer iss = entOpenIDProviderConfig.getProviderMetadata().getIssuer();
     URL jwkSetURL = getJwkSetURL(entOpenIDProviderConfig.getProviderMetadata().getJWKSetURI());
     ClientID clientID = new ClientID(clientId);
-    JWSAlgorithm jwsAlg = JWSAlgorithm.parse(openIdConfigurationProperties.getAlgorithm());
+    
+    // Get algorithm from provider metadata, fallback to configured value or RS256
+    JWSAlgorithm jwsAlg;
+    if (entOpenIDProviderConfig.getProviderMetadata().getIDTokenJWSAlgs() != null 
+        && !entOpenIDProviderConfig.getProviderMetadata().getIDTokenJWSAlgs().isEmpty()) {
+      jwsAlg = entOpenIDProviderConfig.getProviderMetadata().getIDTokenJWSAlgs().get(0);
+    } else if (openIdConfigurationProperties.getAlgorithm() != null) {
+      jwsAlg = JWSAlgorithm.parse(openIdConfigurationProperties.getAlgorithm());
+    } else {
+      jwsAlg = JWSAlgorithm.RS256;
+    }
+    
     return new IDTokenValidator(iss, clientID, jwsAlg, jwkSetURL);
   }
 
