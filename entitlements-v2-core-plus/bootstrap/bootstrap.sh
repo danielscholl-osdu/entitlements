@@ -44,6 +44,10 @@ bootstrap_entitlements_onprem() {
 "userId": "seismic@service.local"
 },
 {
+"aliasId": "SERVICE_PRINCIPAL_REGISTER",
+"userId": "register@service.local"
+},
+{
 "aliasId": "SERVICE_PRINCIPAL_GCZ",
 "userId": "gcz@service.local"
 },
