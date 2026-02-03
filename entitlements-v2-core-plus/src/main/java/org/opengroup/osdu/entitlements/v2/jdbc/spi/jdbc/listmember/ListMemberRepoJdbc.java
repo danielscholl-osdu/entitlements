@@ -22,13 +22,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.MemberInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberRepository;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.listmember.ListMemberServiceDto;
 import org.opengroup.osdu.entitlements.v2.spi.listmember.ListMemberRepo;
@@ -37,20 +35,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class ListMemberRepoJdbc implements ListMemberRepo {
-    private final AuditLogger auditLogger;
     private final GroupRepository groupRepository;
     private final MemberRepository memberRepository;
 
     @Override
     public List<ChildrenReference> run(ListMemberServiceDto listMemberServiceDto) {
-        try {
-            List<ChildrenReference> membersList = executeListGroupOperation(listMemberServiceDto);
-            auditLogger.listMember(AuditStatus.SUCCESS, listMemberServiceDto.getGroupId());
-            return membersList;
-        } catch (Exception e) {
-            auditLogger.listMember(AuditStatus.FAILURE, listMemberServiceDto.getGroupId());
-            throw e;
-        }
+        return executeListGroupOperation(listMemberServiceDto);
     }
 
     private List<ChildrenReference> executeListGroupOperation(ListMemberServiceDto listMemberServiceDto) {

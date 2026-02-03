@@ -9,7 +9,6 @@ import org.opengroup.osdu.entitlements.v2.model.creategroup.CreateGroupDto;
 import org.opengroup.osdu.entitlements.v2.model.creategroup.CreateGroupRepoDto;
 import org.opengroup.osdu.entitlements.v2.di.WhitelistSvcAccBeanConfiguration;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.BaseRepo;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
@@ -22,7 +21,6 @@ import org.opengroup.osdu.entitlements.v2.spi.deletegroup.DeleteGroupRepo;
 import org.opengroup.osdu.entitlements.v2.spi.renamegroup.RenameGroupRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -58,9 +56,6 @@ public class RenameGroupRedisRepo extends BaseRepo implements RenameGroupRepo {
     @Autowired
     private WhitelistSvcAccBeanConfiguration whitelistSvcAccBeanConfiguration;
 
-    @Autowired
-    private AuditLogger auditLogger;
-
     @Override
     public Set<String> run(EntityNode existingGroup, String newGroupName) {
         Set<String> impactedUsers = new HashSet<>();
@@ -86,12 +81,10 @@ public class RenameGroupRedisRepo extends BaseRepo implements RenameGroupRepo {
             impactedUsers.addAll(deleteGroupRepo.deleteGroup(executedCommands, existingGroup));
         } catch (Exception ex) {
             rollback(ex);
-            auditLogger.updateGroup(AuditStatus.FAILURE, existingGroup.getNodeId());
             throw ex;
         } finally {
             executedCommands.clear();
         }
-        auditLogger.updateGroup(AuditStatus.SUCCESS, existingGroup.getNodeId());
         return impactedUsers;
     }
 

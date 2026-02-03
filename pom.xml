@@ -38,9 +38,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Spring Versions-->
-    <spring-boot.version>3.5.8</spring-boot.version>
+    <spring-boot.version>3.5.9</spring-boot.version>
     <spring-security.version>6.5.7</spring-security.version>
-    <spring-framework-version>6.2.14</spring-framework-version>
+    <spring-framework-version>6.2.15</spring-framework-version>
 
     <!-- Project Versions-->
     <json-smart.version>2.5.2</json-smart.version>
@@ -107,20 +107,6 @@
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-      </dependency>
-
-      <!-- Security: CVE-2025-48734 fix - override transitive dependency -->
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <version>1.11.0</version>
-      </dependency>
-
-      <!-- Security: CVE-2025-48924 fix - unbounded recursion DoS -->
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.18.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

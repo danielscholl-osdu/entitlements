@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.creategroup;
 
 import static org.junit.Assert.assertEquals;
@@ -14,14 +28,12 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.MemberInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.SpiJdbcTestConfig;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.JdbcTemplateRunner;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberRepository;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.opengroup.osdu.entitlements.v2.model.creategroup.CreateGroupRepoDto;
@@ -34,8 +46,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = SpiJdbcTestConfig.class)
 @RunWith(SpringRunner.class)
 public class CreateGroupJdbcTest {
-    @MockBean
-    protected AuditLogger auditLogger;
 
     @Autowired
     private CreateGroupRepoJdbc sut;
@@ -87,8 +97,6 @@ public class CreateGroupJdbcTest {
 
         assertEquals(requesterNode.getNodeId(), actualOwner.getEmail());
         assertEquals(Role.OWNER.getValue(), actualOwner.getRole());
-
-        verify(auditLogger).createGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
     }
 
     @Test
@@ -142,7 +150,5 @@ public class CreateGroupJdbcTest {
 
         assertEquals(requesterNode.getNodeId(), actualOwner.getEmail());
         assertEquals(Role.OWNER.getValue(), actualOwner.getRole());
-
-        verify(auditLogger).createGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
     }
 }

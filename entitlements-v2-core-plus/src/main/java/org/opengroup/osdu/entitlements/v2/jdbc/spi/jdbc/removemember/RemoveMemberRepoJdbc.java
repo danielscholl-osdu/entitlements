@@ -22,29 +22,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
-import org.opengroup.osdu.core.common.model.http.RequestInfo;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.MemberInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.JdbcTemplateRunner;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberRepository;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.removemember.RemoveMemberServiceDto;
 import org.opengroup.osdu.entitlements.v2.spi.removemember.RemoveMemberRepo;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
 public class RemoveMemberRepoJdbc implements RemoveMemberRepo {
-
-    private final AuditLogger auditLogger;
-    @Lazy
-    private final RequestInfo requestInfo;
 
     private final MemberRepository memberRepository;
     private final GroupRepository groupRepository;
@@ -54,14 +46,7 @@ public class RemoveMemberRepoJdbc implements RemoveMemberRepo {
     @Override
     @Transactional
     public Set<String> removeMember(EntityNode groupNode, EntityNode memberNode, RemoveMemberServiceDto removeMemberServiceDto) {
-        try {
-            Set<String> affectedMembers = executeRemoveMemberOperation(groupNode, memberNode);
-            auditLogger.removeMember(AuditStatus.SUCCESS, groupNode.getNodeId(), memberNode.getNodeId(), removeMemberServiceDto.getRequesterId());
-            return affectedMembers;
-        } catch (Exception e) {
-            auditLogger.removeMember(AuditStatus.FAILURE, groupNode.getNodeId(), memberNode.getNodeId(), removeMemberServiceDto.getRequesterId());
-            throw e;
-        }
+        return executeRemoveMemberOperation(groupNode, memberNode);
     }
 
     private Set<String> executeRemoveMemberOperation(EntityNode groupNode, EntityNode memberNode) {
