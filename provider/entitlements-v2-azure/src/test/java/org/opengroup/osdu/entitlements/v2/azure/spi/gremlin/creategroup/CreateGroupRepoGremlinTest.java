@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.creategroup;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -5,12 +19,9 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.azure.config.CacheConfig;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.connection.GremlinConnector;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.constant.VertexPropertyNames;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.NodeType;
@@ -38,9 +49,6 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class CreateGroupRepoGremlinTest {
-
-    @MockBean
-    private AuditLogger auditLogger;
 
     @MockBean
     private CacheConfig cacheConfig;
@@ -92,7 +100,6 @@ public class CreateGroupRepoGremlinTest {
         ChildrenReference childrenReference = ChildrenReference.builder()
                 .id("test@test.com").type(NodeType.USER).dataPartitionId("dp").role(Role.OWNER).build();
         assertTrue(retrieveGroupRepo.hasDirectChild(entityNode, childrenReference));
-        Mockito.verify(auditLogger).createGroup(AuditStatus.SUCCESS, "groupId");
     }
 
     @Test
@@ -134,7 +141,6 @@ public class CreateGroupRepoGremlinTest {
                 .id(dataRootGroupNode.getNodeId()).type(dataRootGroupNode.getType())
                 .dataPartitionId(dataRootGroupNode.getDataPartitionId()).role(Role.MEMBER).build();
         assertTrue(retrieveGroupRepo.hasDirectChild(entityNode, childrenReferenceOfDataGroup));
-        Mockito.verify(auditLogger).createGroup(AuditStatus.SUCCESS, "groupId");
     }
 
     @Test

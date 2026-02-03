@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.addmember;
 
 import lombok.RequiredArgsConstructor;
@@ -6,13 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.opengroup.osdu.azure.graph.GraphService;
 import org.opengroup.osdu.azure.util.AuthUtils;
 import org.opengroup.osdu.core.common.feature.IFeatureFlag;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.RequestInfo;
 import org.opengroup.osdu.entitlements.v2.azure.service.AddEdgeDto;
 import org.opengroup.osdu.entitlements.v2.azure.service.GraphTraversalSourceUtilService;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.constant.EdgePropertyNames;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenTreeDto;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.Role;
@@ -34,7 +46,6 @@ import java.util.Set;
 @Slf4j
 public class AddMemberRepoGremlin implements AddMemberRepo {
     private final GraphTraversalSourceUtilService graphTraversalSourceUtilService;
-    private final AuditLogger auditlogger;
     private final RetrieveGroupRepo retrieveGroupRepo;
     public static final String BEARER_PREFIX = "Bearer "; // Whitespace at the end is necessary.
 
@@ -84,16 +95,8 @@ public class AddMemberRepoGremlin implements AddMemberRepo {
                 .edgeLabel(EdgePropertyNames.PARENT_EDGE_LB)
                 .build();
 
-        try {
-            graphTraversalSourceUtilService.addEdge(addChildEdgeRequestBuilder.build());
-            graphTraversalSourceUtilService.addEdge(addParentEdgeRequestBuilder);
-            auditlogger.addMember(AuditStatus.SUCCESS, groupNode.getNodeId(), addMemberRepoDto.getMemberNode().getNodeId(),
-                    addMemberRepoDto.getRole());
-        } catch (Exception e) {
-            auditlogger.addMember(AuditStatus.FAILURE, groupNode.getNodeId(), addMemberRepoDto.getMemberNode().getNodeId(),
-                    addMemberRepoDto.getRole());
-            throw e;
-        }
+        graphTraversalSourceUtilService.addEdge(addChildEdgeRequestBuilder.build());
+        graphTraversalSourceUtilService.addEdge(addParentEdgeRequestBuilder);
         return new HashSet<>(impactedUsers);
     }
 

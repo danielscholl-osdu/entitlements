@@ -26,14 +26,12 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.MemberInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.JdbcTemplateRunner;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberRepository;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.addmember.AddMemberRepoDto;
 import org.opengroup.osdu.entitlements.v2.spi.Operation;
@@ -47,33 +45,23 @@ import org.springframework.stereotype.Repository;
 public class AddMemberRepoJdbc implements AddMemberRepo {
 
 	private final JaxRsDpsLog log;
-	private final AuditLogger auditLogger;
 	private final GroupRepository groupRepository;
 	private final MemberRepository memberRepository;
 	private final JdbcTemplateRunner jdbcTemplateRunner;
 
 	@Override
 	public Set<String> addMember(EntityNode groupEntityNode, AddMemberRepoDto addMemberRepoDto) {
+		log.debug(format("Adding member %s into the group %s and updating the data model in database", addMemberRepoDto.getMemberNode().getNodeId(), groupEntityNode.getNodeId()));
+
 		try {
-			log.debug(format("Adding member %s into the group %s and updating the data model in database", addMemberRepoDto.getMemberNode().getNodeId(), groupEntityNode.getNodeId()));
-			Set<String> affectedMembers = executeAddMemberOperation(groupEntityNode, addMemberRepoDto);
-			auditLogger.addMember(AuditStatus.SUCCESS,
-					groupEntityNode.getNodeId(),
+			return executeAddMemberOperation(groupEntityNode, addMemberRepoDto);
+		} catch (DuplicateKeyException e) {
+			throw new DatabaseAccessException(HttpStatus.CONFLICT, format(
+					"%s is already a member of group %s",
 					addMemberRepoDto.getMemberNode().getNodeId(),
-					addMemberRepoDto.getRole());
-			return affectedMembers;
-		} catch (Exception e){
-			auditLogger.addMember(AuditStatus.FAILURE,
-					groupEntityNode.getNodeId(),
-					addMemberRepoDto.getMemberNode().getNodeId(),
-					addMemberRepoDto.getRole());
+					groupEntityNode.getNodeId()));
+		} catch (Exception e) {
 			if (e.getCause() instanceof DuplicateKeyException) {
-				throw new DatabaseAccessException(HttpStatus.CONFLICT, format(
-						"%s is already a member of group %s",
-						addMemberRepoDto.getMemberNode().getNodeId(),
-						groupEntityNode.getNodeId()));
-			}
-			if (e instanceof DuplicateKeyException) {
 				throw new DatabaseAccessException(HttpStatus.CONFLICT, format(
 						"%s is already a member of group %s",
 						addMemberRepoDto.getMemberNode().getNodeId(),

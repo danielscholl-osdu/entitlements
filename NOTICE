@@ -9,7 +9,6 @@ Apache-1.1
 The following software have components provided under the terms of this license:
 
 - AspectJ Weaver (from http://www.aspectj.org, https://www.eclipse.org/aspectj/)
-- Plexus Common Utilities (from http://plexus.codehaus.org/plexus-utils, https://codehaus-plexus.github.io/plexus-utils/, https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils)
 - Proton-J (from https://repo1.maven.org/maven2/org/apache/qpid/proton-j)
 
 ========================================================================
@@ -80,6 +79,7 @@ The following software have components provided under the terms of this license:
 - Awaitility Proxy (from http://awaitility.org)
 - Byte Buddy (without dependencies) (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
 - Byte Buddy Java agent (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent)
+- Caffeine cache (from https://github.com/ben-manes/caffeine)
 - ClassMate (from http://github.com/cowtowncoder/java-classmate)
 - Collections (from https://repo1.maven.org/maven2/commons-collections/commons-collections)
 - Converter: Jackson (from https://github.com/square/retrofit, https://repo1.maven.org/maven2/com/squareup/retrofit2/converter-jackson)
@@ -90,7 +90,7 @@ The following software have components provided under the terms of this license:
 - Google Auth Library for Java - OAuth2 HTTP (from https://repo1.maven.org/maven2/com/google/auth/google-auth-library-oauth2-http)
 - Google HTTP Client Library for Java (from https://repo1.maven.org/maven2/com/google/http-client/google-http-client)
 - Gson (from http://code.google.com/p/google-gson/, https://repo1.maven.org/maven2/com/google/code/gson/gson)
-- Guava InternalFutureFailureAccess and InternalFutures (from https://repo1.maven.org/maven2/com/google/guava/failureaccess)
+- Guava InternalFutureFailureAccess and InternalFutures (from https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/failureaccess)
 - Guava ListenableFuture only (from https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/listenablefuture)
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - HTTP functionality for the Reactor Netty library (from https://github.com/reactor/reactor-netty)
@@ -186,7 +186,6 @@ The following software have components provided under the terms of this license:
 - Okio (from https://github.com/square/okio/, https://repo1.maven.org/maven2/com/squareup/okio/okio)
 - OpenCensus (from https://github.com/census-instrumentation/opencensus-java)
 - OpenTelemetry Java (from https://github.com/open-telemetry/opentelemetry-java)
-- Plexus Common Utilities (from http://plexus.codehaus.org/plexus-utils, https://codehaus-plexus.github.io/plexus-utils/, https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils)
 - PostgreSQL JDBC Driver (from https://jdbc.postgresql.org)
 - PowerMock (from http://www.powermock.org, https://repo1.maven.org/maven2/org/powermock/powermock-api-mockito)
 - Proton-J (from https://repo1.maven.org/maven2/org/apache/qpid/proton-j)
@@ -242,7 +241,7 @@ The following software have components provided under the terms of this license:
 - boto3 (from <https://github.com/boto/boto3>, https://github.com/boto/boto3)
 - botocore (from <https://github.com/boto/botocore>, https://github.com/boto/botocore)
 - embedded-redis (from https://github.com/ozimov/embedded-redis)
-- error-prone annotations (from https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations)
+- error-prone annotations (from https://errorprone.info/, https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations)
 - exp4j (from http://www.objecthunter.net/exp4j)
 - io.grpc:grpc-api (from https://github.com/grpc/grpc-java)
 - io.grpc:grpc-context (from https://github.com/grpc/grpc-java)
@@ -289,7 +288,6 @@ The following software have components provided under the terms of this license:
 - Jodd Util (from https://util.jodd.org)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - MinLog (from https://github.com/EsotericSoftware/minlog)
-- Plexus Common Utilities (from http://plexus.codehaus.org/plexus-utils, https://codehaus-plexus.github.io/plexus-utils/, https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils)
 - PostgreSQL JDBC Driver (from https://jdbc.postgresql.org)
 - ReflectASM (from https://github.com/EsotericSoftware/reflectasm)
 
@@ -318,7 +316,6 @@ The following software have components provided under the terms of this license:
 - Mockito (from http://mockito.org, http://www.mockito.org, https://github.com/mockito/mockito)
 - Netty/Codec/HTTP (from https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Old JAXB Core (from <https://eclipse-ee4j.github.io/jaxb-ri/>, https://eclipse-ee4j.github.io/jaxb-ri/, https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl)
-- Plexus Common Utilities (from http://plexus.codehaus.org/plexus-utils, https://codehaus-plexus.github.io/plexus-utils/, https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils)
 - PostgreSQL JDBC Driver (from https://jdbc.postgresql.org)
 - Redisson (from http://redisson.org, https://redisson.pro)
 - ReflectASM (from https://github.com/EsotericSoftware/reflectasm)
@@ -337,6 +334,7 @@ CC0-1.0
 The following software have components provided under the terms of this license:
 
 - Apache Commons Pool (from https://commons.apache.org/proper/commons-pool/)
+- Caffeine cache (from https://github.com/ben-manes/caffeine)
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
 - Hibernate Validator (from https://hibernate.org/validator, https://repo1.maven.org/maven2/org/hibernate/hibernate-validator, https://repo1.maven.org/maven2/org/hibernate/validator/hibernate-validator)
