@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.auth;
 
 import org.apache.commons.lang3.StringUtils;
@@ -40,12 +54,22 @@ public class AuthorizationFilter {
                 "Invalid data partition id");
         }
         if (user.equalsIgnoreCase(tenantInfo.getServiceAccount())) {
+            // Service account is authorized, populate authorized group
+            headers.put(DpsHeaders.USER_AUTHORIZED_GROUP_NAME, "service.admin");
             return true;
         }
         if (requiredRoles.length <= 0) {
             throw AppException.createUnauthorized("The user is not authorized to perform this action");
         }
-        return authService.isCurrentUserAuthorized(headers, requiredRoles);
+        boolean authorized = authService.isCurrentUserAuthorized(headers, requiredRoles);
+        if (authorized) {
+            // Populate the authorized group name in headers for audit logging
+            String authorizedGroup = authService.getAuthorizedGroupName(headers, requiredRoles);
+            if (authorizedGroup != null) {
+                headers.put(DpsHeaders.USER_AUTHORIZED_GROUP_NAME, authorizedGroup);
+            }
+        }
+        return authorized;
     }
 
     public boolean requesterHasImpersonationPermission(String role) {

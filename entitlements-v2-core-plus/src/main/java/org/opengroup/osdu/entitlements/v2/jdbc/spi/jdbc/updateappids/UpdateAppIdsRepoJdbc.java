@@ -20,11 +20,9 @@ package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.updateappids;
 import java.util.Collections;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.spi.updateappids.UpdateAppIdsRepo;
 import org.springframework.stereotype.Repository;
@@ -32,19 +30,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class UpdateAppIdsRepoJdbc implements UpdateAppIdsRepo {
-    private final AuditLogger auditLogger;
     private final GroupRepository groupRepository;
 
     @Override
     public Set<String> updateAppIds(EntityNode groupNode, Set<String> appIds) {
-        try {
-            executeUpdateAppIdsOperation(groupNode, appIds);
-            auditLogger.updateAppIds(AuditStatus.SUCCESS, groupNode.getNodeId(), appIds);
-            return Collections.emptySet();
-        } catch (Exception e) {
-            auditLogger.updateAppIds(AuditStatus.FAILURE, groupNode.getNodeId(), appIds);
-            throw e;
-        }
+        executeUpdateAppIdsOperation(groupNode, appIds);
+        return Collections.emptySet();
     }
 
     private void executeUpdateAppIdsOperation(EntityNode groupNode, Set<String> appIds) {

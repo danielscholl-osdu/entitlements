@@ -1,8 +1,20 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.creategroup;
 
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.azure.service.GraphTraversalSourceUtilService;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.opengroup.osdu.entitlements.v2.model.addmember.AddMemberRepoDto;
@@ -28,21 +40,11 @@ public class CreateGroupRepoGremlin implements CreateGroupRepo {
     @Autowired
     private AddMemberRepo addMemberRepo;
     @Autowired
-    private AuditLogger auditLogger;
-    @Autowired
     private RetrieveGroupRepo retrieveGroupRepo;
 
     @Override
     public Set<String> createGroup(EntityNode groupNode, CreateGroupRepoDto createGroupRepoDto) {
-        Set<String> impactedUsers;
-        try {
-            impactedUsers = executeCreateGroupOperation(groupNode, createGroupRepoDto);
-            auditLogger.createGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
-            return impactedUsers;
-        } catch (Exception e) {
-            auditLogger.createGroup(AuditStatus.FAILURE, groupNode.getNodeId());
-            throw e;
-        }
+        return executeCreateGroupOperation(groupNode, createGroupRepoDto);
     }
 
     @Override

@@ -1,17 +1,27 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.deletegroup;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.core.common.model.http.AppException;
-import org.opengroup.osdu.core.common.model.http.RequestInfo;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.SpiJdbcTestConfig;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.JdbcTemplateRunner;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberRepository;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +42,6 @@ import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestData
 @RunWith(SpringRunner.class)
 public class DeleteGroupRepoJdbcTest {
 
-    @MockBean
-    private AuditLogger auditLogger;
     @MockBean
     private RequestInfoUtilService requestInfoUtilService;
     @Autowired
@@ -75,8 +83,6 @@ public class DeleteGroupRepoJdbcTest {
         assertTrue(groupRepository.findDirectParents(Collections.singletonList(savedChild1.getId())).isEmpty());
         assertTrue(groupRepository.findDirectParents(Collections.singletonList(savedChild2.getId())).isEmpty());
         assertTrue(groupRepository.findDirectParents(Collections.singletonList(savedChild3.getId())).isEmpty());
-
-        verify(auditLogger).deleteGroup(AuditStatus.SUCCESS, groupToDelete.getNodeId());
     }
 
     @Test
@@ -105,8 +111,6 @@ public class DeleteGroupRepoJdbcTest {
         assertTrue(groupRepository.findDirectParents(Collections.singletonList(savedParent1.getId())).isEmpty());
         assertTrue(groupRepository.findDirectParents(Collections.singletonList(savedParent2.getId())).isEmpty());
         assertTrue(groupRepository.findDirectParents(Collections.singletonList(savedParent3.getId())).isEmpty());
-
-        verify(auditLogger).deleteGroup(AuditStatus.SUCCESS, groupToDelete.getNodeId());
     }
 
     @Test(expected = AppException.class)
@@ -114,10 +118,6 @@ public class DeleteGroupRepoJdbcTest {
         EntityNode groupNode = getCommonGroup("newgroup");
 
         sut.deleteGroup(groupNode);
-
-        verify(auditLogger).deleteGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
-        verify(auditLogger).deleteGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
-
     }
 
 }

@@ -61,8 +61,6 @@ class MemberCacheServiceAzureTest {
         ReflectionTestUtils.setField(memberCacheService, "redissonLockAcquisitionTimeOut", 5000);
         ReflectionTestUtils.setField(memberCacheService, "redissonLockExpiration", 10000);
         ReflectionTestUtils.setField(memberCacheService, "cacheTtl", 3600);
-        ReflectionTestUtils.setField(memberCacheService, "cacheFlushTtlBase", 10000L);
-        ReflectionTestUtils.setField(memberCacheService, "cacheFlushTtlJitter", 5000L);
     }
 
     @Test
@@ -165,33 +163,10 @@ class MemberCacheServiceAzureTest {
     }
 
     @Test
-    void flushListMemberCacheForGroup_shouldUpdateTtl_whenTtlAboveThreshold() {
-        long currentTtl = 20000L; // Above base + jitter
-        when(redisMemberCache.getTtl(CACHE_KEY)).thenReturn(currentTtl);
-
+    void flushListMemberCacheForGroup_shouldInvalidateCacheBySettingTtlToOne() {
         memberCacheService.flushListMemberCacheForGroup(GROUP_ID, PARTITION_ID);
 
-        verify(redisMemberCache, times(1)).updateTtl(eq(CACHE_KEY), anyLong());
-    }
-
-    @Test
-    void flushListMemberCacheForGroup_shouldNotUpdateTtl_whenTtlBelowThreshold() {
-        long currentTtl = 5000L; // Below base + jitter
-        when(redisMemberCache.getTtl(CACHE_KEY)).thenReturn(currentTtl);
-
-        memberCacheService.flushListMemberCacheForGroup(GROUP_ID, PARTITION_ID);
-
-        verify(redisMemberCache, never()).updateTtl(anyString(), anyLong());
-    }
-
-    @Test
-    void flushListMemberCacheForGroup_shouldNotUpdateTtl_whenTtlEqualsThreshold() {
-        long currentTtl = 15000L; // Exactly base + jitter
-        when(redisMemberCache.getTtl(CACHE_KEY)).thenReturn(currentTtl);
-
-        memberCacheService.flushListMemberCacheForGroup(GROUP_ID, PARTITION_ID);
-
-        verify(redisMemberCache, never()).updateTtl(anyString(), anyLong());
+        verify(redisMemberCache, times(1)).updateTtl(CACHE_KEY, 1L);
     }
 
     private ChildrenReferences createChildrenReferences() {

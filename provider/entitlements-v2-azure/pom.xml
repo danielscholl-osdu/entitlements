@@ -31,9 +31,9 @@
   </parent>
 
   <properties>
-    <core-lib-azure.version>2.3.0</core-lib-azure.version>
+    <core-lib-azure.version>2.4.1</core-lib-azure.version>
     <slf4j.version>2.0.17</slf4j.version>
-    <gremlin.version>3.7.5</gremlin.version>
+    <gremlin.version>3.8.0</gremlin.version>
     <commons-configuration2.version>2.13.0</commons-configuration2.version>
     <!-- Test Versions -->
     <awaitility-test.version>3.1.6</awaitility-test.version>
@@ -60,8 +60,12 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
         <version>${commons-configuration2.version}</version>
-        <!-- Overriding version to fix CVE-2024-29131
-              Gremlin Driver 3.7.3 is vulnerable to CVE-2024-29131 -->
+      </dependency>
+      <!-- Security: CVE-2025-48734 fix - gremlin-driver transitive via commons-configuration2 -->
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.11.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -126,17 +130,14 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <!-- Version managed by azure core library -->
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <!-- Version managed by azure core library -->
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <!-- Version managed by azure core library -->
     </dependency>
 
     <!-- Test Scoped Dependencies -->

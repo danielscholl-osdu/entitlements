@@ -7,14 +7,12 @@ package org.opengroup.osdu.entitlements.v2.ibm.spi.deletegroup;
 import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.ibm.IBMAppProperties;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.BaseRepo;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.db.RedisConnector;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.DeleteGroupOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.RemoveMemberChildUpdateOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.RemoveMemberParentUpdateOperationImpl;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
@@ -37,7 +35,6 @@ public class DeleteGroupRedisRepo extends BaseRepo implements DeleteGroupRepo {
     private final RedisConnector redisConnector;
     private final JaxRsDpsLog log;
     private final IBMAppProperties config;
-    private final AuditLogger auditLogger;
     private final RetrieveGroupRepo retrieveGroupRepo;
     private final Retry retry;
 
@@ -49,12 +46,10 @@ public class DeleteGroupRedisRepo extends BaseRepo implements DeleteGroupRepo {
             impactedUsers = deleteGroup(executedCommands, groupNode);
         } catch (Exception ex) {
             rollback(ex);
-            auditLogger.deleteGroup(AuditStatus.FAILURE, groupNode.getNodeId());
             throw ex;
         } finally {
             executedCommands.clear();
         }
-        auditLogger.deleteGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
         return (impactedUsers == null) ? Collections.emptySet() : impactedUsers;
     }
 

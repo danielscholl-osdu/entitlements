@@ -14,7 +14,6 @@
 
 package org.opengroup.osdu.entitlements.v2.azure.service;
 
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -55,12 +54,6 @@ public class MemberCacheServiceAzure implements MemberCacheService {
     @Value("${app.redis.ttl.seconds}")
     private int cacheTtl;
 
-    @Value("${cache.flush.ttl.base}")
-    private long cacheFlushTtlBase;
-
-    @Value("${cache.flush.ttl.jitter}")
-    private long cacheFlushTtlJitter;
-
 
 
     public List<ChildrenReference> getFromPartitionCache(String groupId, String partitionId){
@@ -77,13 +70,14 @@ public class MemberCacheServiceAzure implements MemberCacheService {
 
     }
 
+    /**
+     * Invalidate the member cache for a group by setting TTL to 1ms.
+     * This ensures the next read will fetch fresh data from the database,
+     * preventing stale cache reads after membership changes.
+     */
     public void flushListMemberCacheForGroup(String groupId, String partitionId){
         String key = String.format(REDIS_KEY_FORMAT, groupId, partitionId);
-        if (redisMemberCache.getTtl(key) > cacheFlushTtlBase + cacheFlushTtlJitter) {
-            SecureRandom random = new SecureRandom();
-            long ttlOfKey = cacheFlushTtlBase + (long) (random.nextDouble() * cacheFlushTtlJitter);
-            redisMemberCache.updateTtl(key, ttlOfKey);
-        }
+        redisMemberCache.updateTtl(key, 1L);
     }
 
 

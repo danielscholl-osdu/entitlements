@@ -8,12 +8,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.ibm.IBMAppProperties;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.BaseRepo;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.db.RedisConnector;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.NodeMetaDataUpdateOperationImpl;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.spi.Operation;
 import org.opengroup.osdu.entitlements.v2.spi.updateappids.UpdateAppIdsRepo;
@@ -35,9 +33,6 @@ public class UpdateAppIdsRedisRepo extends BaseRepo implements UpdateAppIdsRepo 
     private IBMAppProperties config;
 
     @Autowired
-    private AuditLogger auditLogger;
-
-    @Autowired
     private Retry retry;
 
     @Override
@@ -47,12 +42,10 @@ public class UpdateAppIdsRedisRepo extends BaseRepo implements UpdateAppIdsRepo 
             executeAppIdUpdate(groupNode, allowedAppIds);
         } catch (Exception ex) {
             rollback(ex);
-            auditLogger.updateAppIds(AuditStatus.FAILURE, groupNode.getNodeId(), allowedAppIds);
             throw ex;
         } finally {
             executedCommands.clear();
         }
-        auditLogger.updateAppIds(AuditStatus.SUCCESS, groupNode.getNodeId(), allowedAppIds);
         return new HashSet<>();
     }
 
