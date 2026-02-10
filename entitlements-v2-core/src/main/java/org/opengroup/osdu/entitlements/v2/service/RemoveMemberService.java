@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.service;
 
 import lombok.RequiredArgsConstructor;
@@ -5,6 +19,8 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.RequestInfo;
 import org.opengroup.osdu.core.common.status.IEventPublisher;
+import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
+import org.opengroup.osdu.entitlements.v2.logging.AuditOperation;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeAction;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeEvent;
@@ -39,6 +55,7 @@ public class RemoveMemberService {
     private final PermissionService permissionService;
     private final RequestInfo requestInfo;
     private final PartitionFeatureFlagService partitionFeatureFlagService;
+    private final AuditLogger auditLogger;
 
     @Autowired(required = false)
     private IEventPublisher eventPublisher;
@@ -46,9 +63,19 @@ public class RemoveMemberService {
     private Boolean eventPublishingEnabled;
 
     /**
+     * Remove a member from a group using the default REMOVE_MEMBER audit operation.
      * @return a set of ids of impacted users
      */
     public Set<String> removeMember(RemoveMemberServiceDto removeMemberServiceDto) {
+        return removeMember(removeMemberServiceDto, AuditOperation.REMOVE_MEMBER);
+    }
+
+    /**
+     * Remove a member from a group with a specified audit operation.
+     * Use DELETE_MEMBER when called from DeleteMemberService for correct required groups.
+     * @return a set of ids of impacted users
+     */
+    public Set<String> removeMember(RemoveMemberServiceDto removeMemberServiceDto, AuditOperation auditOperation) {
         log.debug(String.format("requested by %s", removeMemberServiceDto.getRequesterId()));
         String groupEmail = removeMemberServiceDto.getGroupEmail();
         String memberEmail = removeMemberServiceDto.getMemberEmail();
@@ -66,11 +93,19 @@ public class RemoveMemberService {
 
         checkIfMemberCanBeRemoved(groupEmail, memberEmail, existingGroupEntityNode, memberNode);
 
-        Set<String> impactedUsers = removeMemberRepo.removeMember(existingGroupEntityNode, memberNode, removeMemberServiceDto);
-        groupCacheService.refreshListGroupCache(impactedUsers, removeMemberServiceDto.getPartitionId());
-        memberCacheService.flushListMemberCacheForGroup(groupEmail, partitionId);
-        publishRemoveMemberEntitlementsChangeEvent(removeMemberServiceDto);
-        return impactedUsers;
+        try {
+            Set<String> impactedUsers = removeMemberRepo.removeMember(existingGroupEntityNode, memberNode, removeMemberServiceDto);
+            groupCacheService.refreshListGroupCache(impactedUsers, removeMemberServiceDto.getPartitionId());
+            memberCacheService.flushListMemberCacheForGroup(groupEmail, partitionId);
+            auditLogger.removeMemberSuccess(groupEmail, memberEmail,
+                    removeMemberServiceDto.getRequesterId(), auditOperation);
+            publishRemoveMemberEntitlementsChangeEvent(removeMemberServiceDto);
+            return impactedUsers;
+        } catch (Exception e) {
+            auditLogger.removeMemberFailure(groupEmail, memberEmail,
+                    removeMemberServiceDto.getRequesterId(), auditOperation);
+            throw e;
+        }
     }
 
     private void checkIfMemberCanBeRemoved(String groupEmail, String memberEmail, EntityNode existingGroupEntityNode, EntityNode memberNode) {

@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.updateappids;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
@@ -8,8 +22,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.azure.config.CacheConfig;
 import org.opengroup.osdu.entitlements.v2.azure.service.AddEdgeDto;
 import org.opengroup.osdu.entitlements.v2.azure.service.GraphTraversalSourceUtilService;
@@ -17,7 +29,6 @@ import org.opengroup.osdu.entitlements.v2.azure.service.VertexUtilService;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.connection.GremlinConnector;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.constant.EdgePropertyNames;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.constant.VertexPropertyNames;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.NodeType;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
@@ -43,8 +54,6 @@ public class UpdateAppIdsRepoGremlinTest {
     private static final String TEST_DOMAIN = TEST_PARTITION_ID + ".contoso.com";
 
     @MockBean
-    private AuditLogger auditLogger;
-    @MockBean
     private CacheConfig cacheConfig;
     @Autowired
     private UpdateAppIdsRepo updateAppIdsRepo;
@@ -63,14 +72,14 @@ public class UpdateAppIdsRepoGremlinTest {
     }
 
     @Test
-    public void shouldLogFailureInAuditLogs() {
+    public void shouldThrowExceptionWhenGroupNotFound() {
         Set<String> appIds = new HashSet<>(Arrays.asList("app1","app2"));
         EntityNode groupNode = EntityNode.builder().nodeId("group1").build();
         try {
             updateAppIdsRepo.updateAppIds(groupNode, appIds);
             Assert.fail("Exception is expected here");
         } catch (Exception e) {
-            Mockito.verify(auditLogger).updateAppIds(AuditStatus.FAILURE, groupNode.getNodeId(), appIds);
+            // Expected - group not found
         }
     }
 
@@ -150,8 +159,6 @@ public class UpdateAppIdsRepoGremlinTest {
                 .map(vertexUtilService::createParentReference)
                 .map(ParentReference::getId)
                 .collect(Collectors.toSet()));
-        Mockito.verify(auditLogger).updateAppIds(AuditStatus.SUCCESS, "users.x" + "@" + TEST_DOMAIN, allowedAppIds);
-
     }
 
     private void addTestEdgeAsOwner(String childName, String parentName) {
@@ -233,7 +240,6 @@ public class UpdateAppIdsRepoGremlinTest {
                 .map(vertexUtilService::createParentReference)
                 .map(ParentReference::getId)
                 .collect(Collectors.toSet()));
-        Mockito.verify(auditLogger).updateAppIds(AuditStatus.SUCCESS, "users.x" + "@" + TEST_DOMAIN, allowedAppIds);
     }
 
     private AddEdgeDto createAddMemberRequest(String childNodeId, String parentNodeId, Role role) {

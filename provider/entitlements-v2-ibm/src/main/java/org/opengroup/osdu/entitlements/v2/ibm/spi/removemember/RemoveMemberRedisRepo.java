@@ -6,7 +6,6 @@ package org.opengroup.osdu.entitlements.v2.ibm.spi.removemember;
 
 import io.github.resilience4j.retry.Retry;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.di.WhitelistSvcAccBeanConfiguration;
 import org.opengroup.osdu.entitlements.v2.ibm.IBMAppProperties;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.BaseRepo;
@@ -14,7 +13,6 @@ import org.opengroup.osdu.entitlements.v2.ibm.spi.db.RedisConnector;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.RemoveMemberChildUpdateOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.RemoveMemberParentUpdateOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.RemoveUserPartitionAssociationOperationImpl;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
@@ -46,9 +44,6 @@ public class RemoveMemberRedisRepo extends BaseRepo implements RemoveMemberRepo 
     private WhitelistSvcAccBeanConfiguration whitelistSvcAccBeanConfiguration;
 
     @Autowired
-    private AuditLogger auditLogger;
-
-    @Autowired
     private RetrieveGroupRepo retrieveGroupRepo;
 
     @Autowired
@@ -66,12 +61,10 @@ public class RemoveMemberRedisRepo extends BaseRepo implements RemoveMemberRepo 
             executeUserPartitionAssociationUpdate(groupNode, memberNode, removeMemberServiceDto.getPartitionId());
         } catch (Exception ex) {
             rollback(ex);
-            auditLogger.removeMember(AuditStatus.FAILURE, groupNode.getNodeId(), memberNode.getNodeId(), removeMemberServiceDto.getRequesterId());
             throw ex;
         } finally {
             executedCommands.clear();
         }
-        auditLogger.removeMember(AuditStatus.SUCCESS, groupNode.getNodeId(), memberNode.getNodeId(), removeMemberServiceDto.getRequesterId());
         return (impactedUsers == null) ? Collections.emptySet() : new HashSet<>(impactedUsers);
     }
 

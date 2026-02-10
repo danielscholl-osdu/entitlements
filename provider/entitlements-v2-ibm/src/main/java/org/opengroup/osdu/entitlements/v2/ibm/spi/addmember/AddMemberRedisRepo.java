@@ -6,7 +6,6 @@ package org.opengroup.osdu.entitlements.v2.ibm.spi.addmember;
 import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.entitlements.v2.di.WhitelistSvcAccBeanConfiguration;
 import org.opengroup.osdu.entitlements.v2.ibm.IBMAppProperties;
@@ -15,7 +14,6 @@ import org.opengroup.osdu.entitlements.v2.ibm.spi.db.RedisConnector;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.AddMemberChildUpdateOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.AddMemberParentUpdateOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.AddUserPartitionAssociationOperationImpl;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenTreeDto;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
@@ -43,7 +41,6 @@ public class AddMemberRedisRepo extends BaseRepo implements AddMemberRepo {
     private final RedisConnector redisConnector;
     private final IBMAppProperties config;
     private final JaxRsDpsLog log;
-    private final AuditLogger auditLogger;
     private final RetrieveGroupRepo retrieveGroupRepo;
     private final Retry retry;
     private final WhitelistSvcAccBeanConfiguration whitelistSvcAccBeanConfiguration;
@@ -56,12 +53,10 @@ public class AddMemberRedisRepo extends BaseRepo implements AddMemberRepo {
             impactedUsers = addMember(executedCommands, groupEntityNode, addMemberRepoDto);
         } catch (Exception ex) {
             rollback(ex);
-            auditLogger.addMember(AuditStatus.FAILURE, groupEntityNode.getNodeId(), addMemberRepoDto.getMemberNode().getNodeId(), addMemberRepoDto.getRole());
             throw ex;
         } finally {
             executedCommands.clear();
         }
-        auditLogger.addMember(AuditStatus.SUCCESS, groupEntityNode.getNodeId(), addMemberRepoDto.getMemberNode().getNodeId(), addMemberRepoDto.getRole());
         return (impactedUsers == null) ? Collections.emptySet() : impactedUsers;
     }
 

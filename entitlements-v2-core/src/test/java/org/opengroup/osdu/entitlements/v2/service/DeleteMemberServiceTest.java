@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.service;
 
 import org.junit.Test;
@@ -6,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.opengroup.osdu.entitlements.v2.logging.AuditOperation;
 import org.opengroup.osdu.entitlements.v2.model.deletemember.DeleteMemberDto;
 import org.opengroup.osdu.entitlements.v2.model.removemember.RemoveMemberServiceDto;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
@@ -59,8 +74,8 @@ public class DeleteMemberServiceTest {
         deleteMemberService.deleteMember(deleteMemberDto);
 
         verify(removeMemberService, times(1)).getDirectParentsEmails(DATA_PARTITION_ID, MEMBER_EMAIL);
-        verify(removeMemberService, times(1)).removeMember(buildRemoveMemberServiceDto(groupEmail1));
-        verify(removeMemberService, times(1)).removeMember(buildRemoveMemberServiceDto(groupEmail2));
+        verify(removeMemberService, times(1)).removeMember(buildRemoveMemberServiceDto(groupEmail1), AuditOperation.DELETE_MEMBER);
+        verify(removeMemberService, times(1)).removeMember(buildRemoveMemberServiceDto(groupEmail2), AuditOperation.DELETE_MEMBER);
         verify(groupCacheService).flushListGroupCacheForUser(MEMBER_EMAIL, DATA_PARTITION_ID);
     }
 

@@ -6,7 +6,6 @@ package org.opengroup.osdu.entitlements.v2.ibm.spi.creategroup;
 import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.entitlements.v2.di.WhitelistSvcAccBeanConfiguration;
 import org.opengroup.osdu.entitlements.v2.ibm.IBMAppProperties;
@@ -16,7 +15,6 @@ import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.AddMemberChildUpdate
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.AddMemberParentUpdateOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.AddUserPartitionAssociationOperationImpl;
 import org.opengroup.osdu.entitlements.v2.ibm.spi.operation.CreateGroupOperationImpl;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.ChildrenReference;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.Role;
@@ -41,7 +39,6 @@ public class CreateGroupRedisRepo extends BaseRepo implements CreateGroupRepo {
     private final RedisConnector redisConnector;
     private final IBMAppProperties config;
     private final JaxRsDpsLog log;
-    private final AuditLogger auditLogger;
     private final RetrieveGroupRepo retrieveGroupRepo;
     private final Retry retry;
     private final WhitelistSvcAccBeanConfiguration whitelistSvcAccBeanConfiguration;
@@ -54,12 +51,10 @@ public class CreateGroupRedisRepo extends BaseRepo implements CreateGroupRepo {
             impactedUsers = createGroup(executedCommands, groupNode, createGroupRepoDto);
         } catch (AppException ex) {
             rollback(ex);
-            auditLogger.createGroup(AuditStatus.FAILURE, groupNode.getNodeId());
             throw ex;
         } finally {
             executedCommands.clear();
         }
-        auditLogger.createGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
         return (impactedUsers == null) ? Collections.emptySet() : impactedUsers;
     }
 
