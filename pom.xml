@@ -38,7 +38,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Spring Versions-->
-    <spring-boot.version>3.5.9</spring-boot.version>
+    <spring-boot.version>3.5.10</spring-boot.version>
     <spring-security.version>6.5.7</spring-security.version>
     <spring-framework-version>6.2.15</spring-framework-version>
 

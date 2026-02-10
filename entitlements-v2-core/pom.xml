@@ -6,7 +6,7 @@
         <java.version>17</java.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
-        <openapi.version>2.8.14</openapi.version>
+        <openapi.version>2.8.15</openapi.version>
         <os-core-common.version>5.1.0</os-core-common.version>
     </properties>
 
