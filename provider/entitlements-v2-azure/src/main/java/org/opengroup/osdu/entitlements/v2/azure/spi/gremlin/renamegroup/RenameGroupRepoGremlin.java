@@ -1,13 +1,25 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.renamegroup;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.connection.GremlinConnector;
 import org.opengroup.osdu.entitlements.v2.azure.spi.gremlin.constant.VertexPropertyNames;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.spi.renamegroup.RenameGroupRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
@@ -25,19 +37,10 @@ public class RenameGroupRepoGremlin implements RenameGroupRepo {
 
     private final RetrieveGroupRepo retrieveGroupRepo;
     private final GremlinConnector gremlinConnector;
-    private final AuditLogger auditLogger;
 
     @Override
     public Set<String> run(EntityNode groupNode, String newGroupName) {
-        Set<String> impactedUsers;
-        try {
-            impactedUsers = executeRenameGroupOperation(groupNode, newGroupName);
-            auditLogger.updateGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
-            return impactedUsers;
-        } catch (Exception e) {
-            auditLogger.updateGroup(AuditStatus.FAILURE, groupNode.getNodeId());
-            throw e;
-        }
+        return executeRenameGroupOperation(groupNode, newGroupName);
     }
 
     private Set<String> executeRenameGroupOperation(EntityNode groupNode, String newGroupName) {

@@ -24,14 +24,12 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.MemberInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.JdbcTemplateRunner;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberRepository;
-import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.opengroup.osdu.entitlements.v2.model.creategroup.CreateGroupRepoDto;
@@ -47,7 +45,6 @@ import org.springframework.stereotype.Repository;
 public class CreateGroupRepoJdbc implements CreateGroupRepo {
 
 	private final JaxRsDpsLog log;
-	private final AuditLogger auditLogger;
 	private final GroupRepository groupRepository;
 	private final MemberRepository memberRepository;
 	private final JdbcTemplateRunner jdbcTemplateRunner;
@@ -55,17 +52,15 @@ public class CreateGroupRepoJdbc implements CreateGroupRepo {
 
 	@Override
 	public Set<String> createGroup(EntityNode groupNode, CreateGroupRepoDto createGroupRepoDto) {
+		log.debug(String.format("Creating group %s and updating data model in postgres",
+			groupNode.getName()));
+
 		try {
-			log.debug(String.format("Creating group %s and updating data model in postgres",
-				groupNode.getName()));
-
 			executeCreateGroupOperation(groupNode, createGroupRepoDto);
-
-			auditLogger.createGroup(AuditStatus.SUCCESS, groupNode.getNodeId());
 			return ImmutableSet.of(createGroupRepoDto.getRequesterNode().getNodeId());
-
+		} catch (DuplicateKeyException e) {
+			throw new DatabaseAccessException(HttpStatus.CONFLICT, "This group already exists");
 		} catch (Exception e) {
-			auditLogger.createGroup(AuditStatus.FAILURE, groupNode.getNodeId());
 			if (e.getCause() instanceof DuplicateKeyException) {
 				throw new DatabaseAccessException(HttpStatus.CONFLICT, "This group already exists");
 			}

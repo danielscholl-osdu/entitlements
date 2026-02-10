@@ -1,3 +1,17 @@
+//  Copyright © Microsoft Corporation
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.opengroup.osdu.entitlements.v2.service;
 
 import lombok.RequiredArgsConstructor;
@@ -5,6 +19,7 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.RequestInfo;
 import org.opengroup.osdu.core.common.status.IEventPublisher;
+import org.opengroup.osdu.entitlements.v2.logging.AuditLogger;
 import org.opengroup.osdu.entitlements.v2.model.deletegroup.DeleteGroupServiceDto;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.events.EntitlementsChangeEvent;
@@ -31,6 +46,7 @@ public class DeleteGroupService {
     private final DefaultGroupsService defaultGroupsService;
     private final PermissionService permissionService;
     private final RequestInfo requestInfo;
+    private final AuditLogger auditLogger;
     @Autowired(required = false)
     private IEventPublisher eventPublisher;
     @Value("${event-publishing.enabled:false}")
@@ -47,9 +63,15 @@ public class DeleteGroupService {
         if (defaultGroupsService.isDefaultGroupName(groupNode.getName())) {
             throw new AppException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Invalid group, bootstrap groups are not allowed to be deleted");
         }
-        Set<String> impactedUsers = deleteGroupRepo.deleteGroup(existingGroupEntityNode.get());
-        groupCacheService.refreshListGroupCache(impactedUsers, deleteGroupServiceDto.getPartitionId());
-        memberCacheService.flushListMemberCacheForGroup(groupNode.getNodeId(), deleteGroupServiceDto.getPartitionId());
+        try {
+            Set<String> impactedUsers = deleteGroupRepo.deleteGroup(existingGroupEntityNode.get());
+            groupCacheService.refreshListGroupCache(impactedUsers, deleteGroupServiceDto.getPartitionId());
+            memberCacheService.flushListMemberCacheForGroup(groupNode.getNodeId(), deleteGroupServiceDto.getPartitionId());
+            auditLogger.deleteGroupSuccess(groupNode.getNodeId());
+        } catch (Exception e) {
+            auditLogger.deleteGroupFailure(groupNode.getNodeId());
+            throw e;
+        }
         publishDeleteGroupEntitlementsChangeEvent(groupNode.getNodeId(), deleteGroupServiceDto.getRequesterId());
     }
 

@@ -20,6 +20,7 @@ package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.retrievegroup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.opengroup.osdu.core.common.model.http.AppException;
+import org.opengroup.osdu.entitlements.v2.jdbc.JdbcAppProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.MemberInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.SpiJdbcTestConfig;
@@ -65,6 +66,8 @@ class RetrieveGroupRepoJdbcTest {
   private MemberRepository memberRepository;
   @MockBean
   private JdbcTemplateRunner jdbcTemplateRunner;
+  @MockBean
+  private JdbcAppProperties config;
 
   @Test
   void shouldThrow404IfGroupDoesNotExist() {
@@ -130,5 +133,50 @@ class RetrieveGroupRepoJdbcTest {
         childrenReference.getId())).thenReturn(Collections.emptyList());
 
     assertFalse(sut.hasDirectChild(groupNode, childrenReference));
+  }
+
+  @Test
+  void shouldLoadDirectParentsForUserEmail() {
+    String userEmail = "user@example.com";
+    EntityNode parentGroup1 = getUsersGroupNode("parent1");
+    EntityNode parentGroup2 = getUsersGroupNode("parent2");
+
+    MemberInfoEntity memberEntity = MemberInfoEntity.builder()
+        .id(1L)
+        .email(userEmail)
+        .build();
+
+    when(memberRepository.findByEmail(userEmail)).thenReturn(Collections.singletonList(memberEntity));
+    when(groupRepository.findDirectGroups(Collections.singletonList(1L))).thenReturn(
+        Arrays.asList(
+            GroupInfoEntity.fromEntityNode(parentGroup1),
+            GroupInfoEntity.fromEntityNode(parentGroup2)
+        ));
+
+    List<ParentReference> parents = sut.loadDirectParents(DATA_PARTITION_ID, userEmail);
+
+    assertEquals(2, parents.size());
+    assertTrue(parents.stream().anyMatch(p -> p.getId().equals(parentGroup1.getNodeId())));
+    assertTrue(parents.stream().anyMatch(p -> p.getId().equals(parentGroup2.getNodeId())));
+  }
+
+  @Test
+  void shouldLoadDirectParentsForGroupEmail() {
+    EntityNode childGroup = getUsersGroupNode("child");
+    EntityNode parentGroup = getUsersGroupNode("parent");
+
+    GroupInfoEntity childGroupEntity = GroupInfoEntity.fromEntityNode(childGroup);
+    childGroupEntity.setId(10L);
+
+    when(memberRepository.findByEmail(childGroup.getNodeId())).thenReturn(Collections.emptyList());
+    when(config.getDomain()).thenReturn("group.com");
+    when(groupRepository.findByEmail(childGroup.getNodeId())).thenReturn(Collections.singletonList(childGroupEntity));
+    when(groupRepository.findDirectParents(Collections.singletonList(10L))).thenReturn(
+        Collections.singletonList(GroupInfoEntity.fromEntityNode(parentGroup)));
+
+    List<ParentReference> parents = sut.loadDirectParents(DATA_PARTITION_ID, childGroup.getNodeId());
+
+    assertEquals(1, parents.size());
+    assertEquals(parentGroup.getNodeId(), parents.get(0).getId());
   }
 }

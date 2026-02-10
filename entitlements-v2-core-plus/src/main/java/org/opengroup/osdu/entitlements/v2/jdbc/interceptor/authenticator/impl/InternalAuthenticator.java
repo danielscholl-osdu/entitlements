@@ -17,6 +17,7 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.impl;
 
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +49,16 @@ public class InternalAuthenticator implements IAuthenticator {
             log.warn("Request unauthenticated, token is required.");
             return false;
         }
-        String userId = userInfoProvider.getUserInfoFromToken(authorization.get())
-            .getStringClaim(openIdProperties.getUserIdClaimName());
+        UserInfo userInfo = userInfoProvider.getUserInfoFromToken(authorization.get());
+        String userId = userInfo.getStringClaim(openIdProperties.getUserIdClaimName());
+        // Fallback to 'sub' claim if configured claim is not present
+        if (userId == null && userInfo.getSubject() != null) {
+            userId = userInfo.getSubject().getValue();
+        }
+        if (userId == null) {
+            log.warn("Request unauthenticated, no user ID found in token.");
+            return false;
+        }
         dpsHeaders.put(DpsHeaders.USER_ID, userId);
         if (userIdentity.isPresent()) {
             log.warn("Both, token and header {} are present, verify they are related to the same email.",
