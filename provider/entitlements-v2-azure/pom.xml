@@ -38,7 +38,7 @@
     <!-- Test Versions -->
     <awaitility-test.version>3.1.6</awaitility-test.version>
     <embedded-redis-test.version>0.7.3</embedded-redis-test.version>
-    <mockito-test.version>5.14.2</mockito-test.version>
+    <mockito-test.version>3.12.4</mockito-test.version>
     <powermock-test.version>2.0.9</powermock-test.version>
     <!-- Plugin Versions -->
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
