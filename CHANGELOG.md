@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.2.0](https://github.com/danielscholl-osdu/entitlements/compare/v1.1.0...v1.2.0) (2026-03-25)
+
+
+### ✨ Features
+
+* **azure-cache:** Add principalId support and unify Redis cache creation ([3d9f646](https://github.com/danielscholl-osdu/entitlements/commit/3d9f6460a0c11ccd9134867ec5fb01713ffff572))
+* **azure:** Switch Redis authentication from password to MSI ([b49d0ba](https://github.com/danielscholl-osdu/entitlements/commit/b49d0ba085017df61dc075047940b8f3d57af22b))
+* **azure:** Switch Redis authentication from password to MSI ([da91db9](https://github.com/danielscholl-osdu/entitlements/commit/da91db9ed04589897af0b946dba8bea3983ffc8b))
+
+
+### 🔧 Miscellaneous
+
+* Sync template updates ([2ccd6d4](https://github.com/danielscholl-osdu/entitlements/commit/2ccd6d47d6efc0d405576ad61cc7df46f1156510))
+* Sync template updates ([5cc04ca](https://github.com/danielscholl-osdu/entitlements/commit/5cc04cae14fbfb40536e404404e23000e2859087))
+
+
+### ⚙️ Continuous Integration
+
+* **api:** Update OpenAPI spec path and route in GitLab CI ([9fc87f2](https://github.com/danielscholl-osdu/entitlements/commit/9fc87f2102883acd1714af1335c8c938e87cad04))
+
 ## [1.1.0](https://github.com/danielscholl-osdu/entitlements/compare/v1.0.0...v1.1.0) (2026-02-20)
 
 
