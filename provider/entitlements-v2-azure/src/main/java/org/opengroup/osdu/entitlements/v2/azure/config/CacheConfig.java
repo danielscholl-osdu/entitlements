@@ -25,9 +25,11 @@ public class CacheConfig {
     @Value("${redis.expiration:3600}")
     private int redisExpiration;
 
-
     @Value("${redis.command.timeout:5}")
     private int commandTimeout;
+
+    @Value("${redis.principal.id:#{null}}")
+    private String redisPrincipalId;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -38,28 +40,28 @@ public class CacheConfig {
      */
     @Bean
     @Lazy(false)
-    public RedisAzureCache<String, ParentReferences> groupCacheRedis(
-            IRedisClientFactory<String, ParentReferences> redisClientFactory) {
-        RedisAzureConfiguration redisConfig = new RedisAzureConfiguration(redisDatabase, redisExpiration, redisPort,
-                redisTtlSeconds, commandTimeout);
-
-        // Forcing the Redis client creation + connection establishment at service startup
-        redisClientFactory.getClient(String.class, ParentReferences.class, redisConfig);
-        redisClientFactory.getRedissonClient(this.applicationName, redisConfig);
-
-        return new RedisAzureCache<>(String.class, ParentReferences.class, redisConfig);
+    public RedisAzureCache<String, ParentReferences> groupCacheRedis(IRedisClientFactory<String, ParentReferences> redisClientFactory) {
+        return createRedisCache(ParentReferences.class, redisClientFactory);
     }
 
     @Bean
-    public RedisAzureCache<String, ChildrenReferences> memberCacheRedis(
-            IRedisClientFactory<String, ChildrenReferences> redisClientFactory) {
-        RedisAzureConfiguration redisConfig = new RedisAzureConfiguration(redisDatabase, redisExpiration, redisPort,
-                redisTtlSeconds, commandTimeout);
+    public RedisAzureCache<String, ChildrenReferences> memberCacheRedis(IRedisClientFactory<String, ChildrenReferences> redisClientFactory) {
+        return createRedisCache(ChildrenReferences.class, redisClientFactory);
+    }
+
+    private <T> RedisAzureCache<String, T> createRedisCache(Class<T> valueClass, IRedisClientFactory<String, T> redisClientFactory) {
+        RedisAzureConfiguration redisConfig = new RedisAzureConfiguration(
+            redisDatabase,
+            redisExpiration,
+            redisPort,
+            redisTtlSeconds,
+            commandTimeout,
+            redisPrincipalId);
 
         // Forcing the Redis client creation + connection establishment at service startup
-        redisClientFactory.getClient(String.class, ChildrenReferences.class, redisConfig);
+        redisClientFactory.getClient(String.class, valueClass, redisConfig, null);
         redisClientFactory.getRedissonClient(this.applicationName, redisConfig);
 
-        return new RedisAzureCache<>(String.class, ChildrenReferences.class, redisConfig);
+        return new RedisAzureCache<>(String.class, valueClass, redisConfig);
     }
 }
