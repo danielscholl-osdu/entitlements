@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>entitlements-v2-aws</artifactId>
+    <version>0.30.0-SNAPSHOT</version>
     <name>entitlements-v2-aws</name>
     <description>AWS provider for Entitlements v2 service</description>
 

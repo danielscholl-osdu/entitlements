@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>gremlin-shaded-fix</artifactId>
+    <version>0.30.0-SNAPSHOT</version>
     <name>Gremlin Shaded Fix</name>
     <description>gremlin-shaded shading with patched jackson</description>
 

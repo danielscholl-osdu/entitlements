@@ -33,6 +33,7 @@
   </parent>
 
   <artifactId>entitlements-v2-core-plus</artifactId>
+  <version>0.30.0-SNAPSHOT</version>
   <name>entitlements-v2-core-plus</name>
 
   <dependencies>
