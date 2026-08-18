@@ -19,6 +19,10 @@ cimpl-acceptance-test:
   variables:
     PARTITION_URL: "https://osdu.dev1.osdu-cimpl.opengroup.org/api/partition/v1/"
 
+cimpl-prod-deploy:
+  variables:
+    CIMPL_SERVICE: "entitlements"
+    
 #dev2 jobs
 cimpl-dev2-deploy:
   variables:
