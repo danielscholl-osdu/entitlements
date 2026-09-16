@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.opengroup.osdu.entitlements.v2</groupId>
+    <artifactId>entitlements-v2-acceptance-test</artifactId>
+    <version>0.31.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.main.basedir>${project.basedir}</project.main.basedir>
+        <lombok.version>1.18.42</lombok.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.opengroup.osdu</groupId>
+            <artifactId>os-core-test</artifactId>
+            <version>0.2.7</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- os-core-test declares junit-jupiter-engine with test scope, so it is not transitive here. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.14.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opengroup.osdu</groupId>
+            <artifactId>os-core-common</artifactId>
+            <version>7.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>11.37.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>2.31.0</version>
+        </dependency>
+        <!-- allure-junit-platform 2.31.0 brings junit-platform-launcher 1.10.3,
+             but os-core-test brings junit-platform-suite-engine 1.14.4. The old
+             launcher can't invoke the newer suite engine's discovery API, so
+             surefire fails with: "TestEngine with ID 'junit-platform-suite'
+             failed to discover tests". Pin launcher to match. -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.14.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>none</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/acceptance</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>${repo.releases.id}</id>
+            <url>${repo.releases.url}</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>${publish.releases.id}</id>
+            <url>${publish.releases.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${publish.snapshots.id}</id>
+            <url>${publish.snapshots.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>Default</id>
+            <activation>
+                <property>
+                    <name>!repo.releases.id</name>
+                </property>
+            </activation>
+            <properties>
+                <repo.releases.id>community-maven-repo</repo.releases.id>
+                <publish.snapshots.id>community-maven-via-job-token</publish.snapshots.id>
+                <publish.releases.id>community-maven-via-job-token</publish.releases.id>
+                <repo.releases.url>https://community.opengroup.org/api/v4/groups/17/-/packages/maven</repo.releases.url>
+                <publish.snapshots.url>https://community.opengroup.org/api/v4/projects/400/packages/maven</publish.snapshots.url>
+                <publish.releases.url>https://community.opengroup.org/api/v4/projects/400/packages/maven</publish.releases.url>
+            </properties>
+        </profile>
+    </profiles>
+</project>
