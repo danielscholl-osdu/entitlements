@@ -1,0 +1,89 @@
+# Per-service upstream filter config (ADR-038), planted at fork initialization
+# with entitlements substituted from the upstream repository name.
+# Every upstream top-level entry, testing/ entry, root pom profile, and
+# .fossa.yml module must appear here: the engine halts rather than guess.
+# Entries absent from a given upstream tree are inert, so this file carries the
+# superset of the conventional OSDU service shape. A service that deviates
+# maintains its own copy of this file on the fork's main branch.
+service: entitlements-v2
+
+top_level:
+  .config: keep
+  data-migration: keep
+  gremlin-shaded-fix: keep
+  .dockerignore: keep
+  .editorconfig: keep
+  .fossa.yml: keep
+  .gitattributes: keep
+  .gitignore: keep
+  .gitlab-ci.yml: strip
+  .mvn: keep
+  LICENSE: keep
+  NOTICE: keep
+  README.md: keep
+  docs: keep
+  pom.xml: keep
+  entitlements-v2-acceptance-test: keep
+  entitlements-v2-core: keep
+  entitlements-v2-core-plus: strip
+
+testing:
+  entitlements-v2-test-jdbc: strip
+  INTEGRATION-TESTS.md: keep
+  README.md: keep
+  maven: keep
+  pom.xml: keep
+  entitlements-v2-test-core: keep
+  entitlements-v2-test-azure: fork
+  entitlements-v2-test-aws: strip
+  entitlements-v2-test-baremetal: strip
+  entitlements-v2-test-core-plus: strip
+  entitlements-v2-test-gc: strip
+  entitlements-v2-test-gcp: strip
+  entitlements-v2-test-ibm: strip
+
+profiles:
+  Default: keep
+  core: keep
+  azure: inject
+  aws: strip
+  gc: strip
+  gcp: strip
+  ibm: strip
+
+fossa_modules:
+  entitlements-v2-service: keep
+  entitlements-v2-core: keep
+  entitlements-v2-core-plus: strip
+  entitlements-v2-azure: strip
+  entitlements-v2-aws: strip
+  entitlements-v2-gc: strip
+  entitlements-v2-gcp: strip
+  entitlements-v2-ibm: strip
+  entitlements-v2-jdbc: strip
+
+expected_kept:
+  - pom.xml
+  - entitlements-v2-core
+  - testing/entitlements-v2-test-core
+
+expected_absent:
+  - provider
+  - devops
+  - entitlements-v2-core-plus
+  - .gitlab-ci.yml
+  - testing/entitlements-v2-test-azure
+  - testing/entitlements-v2-test-aws
+  - testing/entitlements-v2-test-core-plus
+
+inject_root_pom_azure_profile: |
+      <profile>
+        <id>azure</id>
+        <modules>
+          <module>gremlin-shaded-fix</module>
+          <module>provider/entitlements-v2-azure</module>
+        </modules>
+      </profile>
+
+inject_testing_pom_azure_module: |
+      <module>entitlements-v2-test-azure</module>
