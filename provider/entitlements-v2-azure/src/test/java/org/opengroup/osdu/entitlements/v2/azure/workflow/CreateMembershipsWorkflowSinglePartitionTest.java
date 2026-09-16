@@ -127,7 +127,7 @@ public class CreateMembershipsWorkflowSinglePartitionTest {
         tenantInfo.setDataPartitionId("common");
         tenantInfo.setServiceAccount("service_principal.com");
         Mockito.when(tenantFactory.getTenantInfo("common")).thenReturn(tenantInfo);
-        when(authService.isCurrentUserAuthorized(any(), any())).thenReturn(true);
+        when(authService.isCurrentUserAuthorized(any(), any(String[].class))).thenReturn(true);
         when(redisGroupCache.getLock(any())).thenReturn(cacheLock);
         when(cacheLock.tryLock(anyLong(), anyLong(), any())).thenReturn(true);
     }
@@ -948,6 +948,7 @@ public class CreateMembershipsWorkflowSinglePartitionTest {
             mockMvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(status().isOk());
         }
         assertGroupsEquals(new String[]{"users@common.contoso.com",
+                        "service.reservoir-dms.viewers@common.contoso.com", "service.reservoir-dms.owners@common.contoso.com",
                         "users.datalake.editors@common.contoso.com", "service.storage.viewer@common.contoso.com",
                         "service.workflow.creator@common.contoso.com", "service.search.user@common.contoso.com",
                         "service.legal.user@common.contoso.com", "service.file.viewers@common.contoso.com",

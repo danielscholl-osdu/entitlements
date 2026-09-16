@@ -63,7 +63,7 @@ public class AppIdCustomDimensionTest {
         tenantInfo.setServiceAccount("internal-service-account");
         Mockito.when(tenantFactory.listTenantInfo()).thenReturn(Collections.singletonList(tenantInfo));
         Mockito.when(tenantFactory.getTenantInfo("common")).thenReturn(tenantInfo);
-        Mockito.when(authService.isCurrentUserAuthorized(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
+        Mockito.when(authService.isCurrentUserAuthorized(ArgumentMatchers.any(), ArgumentMatchers.any(String[].class))).thenReturn(true);
         Mockito.when(azureAppProperties.getDomain()).thenReturn("contoso.com");
         String appIdValue = "app-id-value";
         performRequest(appIdValue);
