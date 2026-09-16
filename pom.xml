@@ -47,7 +47,7 @@
     <!-- Project Versions-->
     <json-smart.version>2.6.0</json-smart.version>
     <log4j.version>2.25.3</log4j.version>
-    <swagger-core.version>2.2.45</swagger-core.version>
+    <swagger-core.version>2.2.55</swagger-core.version>
     <!-- Override Spring Boot 3.5.16's tomcat 10.1.55: Critical RewriteValve / web.xml issues
          fixed in 10.1.56–10.1.57; 10.1.59 is the latest 10.1.x with those and later fixes.
          Explicit dependencyManagement is required (BOM import, no spring-boot-starter-parent). -->
