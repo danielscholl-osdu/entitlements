@@ -13,4 +13,4 @@ tests:
       DATA_PARTITION_ID: { source: partition }
       PRIVILEGED_USER_TOKEN: { source: token }
       NO_ACCESS_USER_TOKEN: { source: memberToken }
-      ENTITLEMENTS_DOMAIN: { source: static, value: dataservices.energy }
+      ENTITLEMENTS_DOMAIN: { source: domain }
