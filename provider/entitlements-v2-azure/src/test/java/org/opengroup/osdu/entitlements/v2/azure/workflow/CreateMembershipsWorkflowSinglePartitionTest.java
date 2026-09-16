@@ -948,6 +948,7 @@ public class CreateMembershipsWorkflowSinglePartitionTest {
             mockMvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(status().isOk());
         }
         assertGroupsEquals(new String[]{"users@common.contoso.com",
+                        "service.reservoir-dms.viewers@common.contoso.com", "service.reservoir-dms.owners@common.contoso.com",
                         "users.datalake.editors@common.contoso.com", "service.storage.viewer@common.contoso.com",
                         "service.workflow.creator@common.contoso.com", "service.search.user@common.contoso.com",
                         "service.legal.user@common.contoso.com", "service.file.viewers@common.contoso.com",
