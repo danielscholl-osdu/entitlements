@@ -341,7 +341,6 @@
       </activation>
       <modules>
         <module>entitlements-v2-core</module>
-        <module>entitlements-v2-core-plus</module>
         <!-- Remove once TinkerPop releases gremlin-shaded with jackson >= 2.21.1 -->
         <module>gremlin-shaded-fix</module>
       </modules>
@@ -351,18 +350,6 @@
       <modules>
         <module>gremlin-shaded-fix</module>
         <module>provider/entitlements-v2-azure</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>ibm</id>
-      <modules>
-        <module>provider/entitlements-v2-ibm</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>gc</id>
-      <modules>
-        <module>provider/entitlements-v2-jdbc</module>
       </modules>
     </profile>
   </profiles>
