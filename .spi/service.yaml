@@ -1,0 +1,16 @@
+schemaVersion: 3
+service:
+  name: entitlements
+  archetype: java-maven-azure
+tests:
+  acceptance:
+    type: maven
+    path: entitlements-v2-acceptance-test
+    mavenArguments: [test]
+    timeoutMinutes: 20
+    bindings:
+      HOST: { source: gateway }
+      DATA_PARTITION_ID: { source: partition }
+      PRIVILEGED_USER_TOKEN: { source: token }
+      NO_ACCESS_USER_TOKEN: { source: memberToken }
+      ENTITLEMENTS_DOMAIN: { source: domain }
