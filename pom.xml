@@ -359,12 +359,6 @@
         <module>provider/entitlements-v2-ibm</module>
       </modules>
     </profile>
-    <profile>
-      <id>gc</id>
-      <modules>
-        <module>provider/entitlements-v2-jdbc</module>
-      </modules>
-    </profile>
   </profiles>
 
   <repositories>
