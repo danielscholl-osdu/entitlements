@@ -28,7 +28,3 @@ analyze:
     type: mvn
     target: provider/entitlements-v2-ibm/pom.xml
     path: .
-  - name: entitlements-v2-jdbc
-    type: mvn
-    target: provider/entitlements-v2-jdbc/pom.xml
-    path: .
