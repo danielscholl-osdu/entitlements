@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.1](https://github.com/danielscholl-osdu/entitlements/compare/v1.2.0...v1.2.1) (2026-09-26)
+
+
+### 📚 Documentation
+
+* Add CONTRIBUTING guide and claim it in CODEOWNERS ([d316189](https://github.com/danielscholl-osdu/entitlements/commit/d3161898403477ccad8b7fb8769a76d9494454d7))
+* Add CONTRIBUTING guide and claim it in CODEOWNERS ([b8780f3](https://github.com/danielscholl-osdu/entitlements/commit/b8780f39783cf072f73ec45e8ff6c45015bba5e7))
+
+
+### 🔧 Miscellaneous
+
+* Sync template updates ([329ddf8](https://github.com/danielscholl-osdu/entitlements/commit/329ddf80fb82be35bcbefb766db4f9af3c23ef6e))
+* **template-sync:** Sync template updates (updated 2026-09-26) ([95b47b2](https://github.com/danielscholl-osdu/entitlements/commit/95b47b2b76bd2a9409a5858cf4155938e3d50b56))
+
 ## [1.2.0](https://github.com/danielscholl-osdu/entitlements/compare/v1.1.0...v1.2.0) (2026-09-23)
 
 
