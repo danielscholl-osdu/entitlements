@@ -54,7 +54,7 @@
     <tomcat.version>10.1.59</tomcat.version>
     <!-- Jackson High findings on 2.21.2 (GHSA-r7wm-3cxj-wff9, CVE-2026-54512, CVE-2026-54513);
          fixed in 2.21.4+. Pin latest 2.21.x patch via jackson-bom import precedence. -->
-    <jackson-bom.version>2.21.6</jackson-bom.version>
+    <jackson-bom.version>2.21.7</jackson-bom.version>
     <!-- pgjdbc High CVE-2026-42198 on 42.7.10; fixed in 42.7.11+. -->
     <postgresql.version>42.7.13</postgresql.version>
     <!-- os-core-common 7.0.0 declares lettuce-core as provided; CVE-2025-58057 requires >= 7.5.2.RELEASE -->
