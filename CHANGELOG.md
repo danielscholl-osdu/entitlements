@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.3.0](https://github.com/danielscholl-osdu/entitlements/compare/v1.2.0...v1.3.0) (2026-09-29)
+
+
+### ✨ Features
+
+* Declare the Azure integration suite for spi test ([79fa247](https://github.com/danielscholl-osdu/entitlements/commit/79fa24757c07ad8dda3cf2564b0819132da44461))
+* **test:** Accept supplied bearer token in AzureTokenService ([82aafb5](https://github.com/danielscholl-osdu/entitlements/commit/82aafb52d6590f9b6e4d3fbc122521f5d3a25519))
+
+
+### 📚 Documentation
+
+* Add CONTRIBUTING guide and claim it in CODEOWNERS ([d316189](https://github.com/danielscholl-osdu/entitlements/commit/d3161898403477ccad8b7fb8769a76d9494454d7))
+* Add CONTRIBUTING guide and claim it in CODEOWNERS ([b8780f3](https://github.com/danielscholl-osdu/entitlements/commit/b8780f39783cf072f73ec45e8ff6c45015bba5e7))
+
+
+### 🔧 Miscellaneous
+
+* Sync template updates ([329ddf8](https://github.com/danielscholl-osdu/entitlements/commit/329ddf80fb82be35bcbefb766db4f9af3c23ef6e))
+* **template-sync:** Sync template updates (updated 2026-09-26) ([95b47b2](https://github.com/danielscholl-osdu/entitlements/commit/95b47b2b76bd2a9409a5858cf4155938e3d50b56))
+
+
+### ♻️ Code Refactoring
+
+* **test:** Rewrite caller claim resolution in AzureTokenService ([285c49d](https://github.com/danielscholl-osdu/entitlements/commit/285c49d7c57013173a8b386b02487ac6d45c5c30))
+
 ## [1.2.0](https://github.com/danielscholl-osdu/entitlements/compare/v1.1.0...v1.2.0) (2026-09-23)
 
 
