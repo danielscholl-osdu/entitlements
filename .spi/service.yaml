@@ -14,3 +14,13 @@ tests:
       PRIVILEGED_USER_TOKEN: { source: token }
       NO_ACCESS_USER_TOKEN: { source: memberToken }
       ENTITLEMENTS_DOMAIN: { source: domain }
+  integration:
+    type: maven
+    path: testing
+    mavenArguments: [-pl, entitlements-v2-test-azure, -am, "-Dtest=!TenantInitAzureTest#shouldSuccessfullyProvisionGroupsForNewTenant", -Dsurefire.failIfNoSpecifiedTests=false, test]
+    timeoutMinutes: 20
+    bindings:
+      ENTITLEMENT_V2_URL: { source: gateway, suffix: /api/entitlements/v2/ }
+      TENANT_NAME: { source: partition }
+      DOMAIN: { source: domain }
+      INTEGRATION_TESTER_ACCESS_TOKEN: { source: token }
