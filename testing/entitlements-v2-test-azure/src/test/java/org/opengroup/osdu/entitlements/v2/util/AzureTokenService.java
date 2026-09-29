@@ -49,13 +49,20 @@ public class AzureTokenService implements TokenService {
             throw new IllegalStateException("INTEGRATION_TESTER_ACCESS_TOKEN is not a JWT", e);
         }
         boolean v2 = "2.0".equals(claims.path("ver").asText());
-        String[] order = v2
-                ? new String[]{"unique_name", "oid", "azp"}
-                : new String[]{"unique_name", "appid", "upn"};
-        for (String claim : order) {
-            if (claims.hasNonNull(claim)) {
-                return claims.get(claim).asText();
-            }
+        if (claims.hasNonNull("unique_name")) {
+            return claims.get("unique_name").asText();
+        }
+        if (v2 && claims.hasNonNull("oid")) {
+            return claims.get("oid").asText();
+        }
+        if (v2 && claims.hasNonNull("azp")) {
+            return claims.get("azp").asText();
+        }
+        if (!v2 && claims.hasNonNull("oid") && claims.hasNonNull("appid")) {
+            return claims.get("appid").asText();
+        }
+        if (!v2 && claims.hasNonNull("upn")) {
+            return claims.get("upn").asText();
         }
         throw new IllegalStateException("INTEGRATION_TESTER_ACCESS_TOKEN names no caller");
     }
