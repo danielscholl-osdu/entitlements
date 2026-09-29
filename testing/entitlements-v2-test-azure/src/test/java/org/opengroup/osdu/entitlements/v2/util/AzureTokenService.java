@@ -1,11 +1,19 @@
 package org.opengroup.osdu.entitlements.v2.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import org.opengroup.osdu.azure.util.AzureServicePrincipal;
 import org.opengroup.osdu.entitlements.v2.acceptance.model.Token;
 import org.opengroup.osdu.entitlements.v2.acceptance.util.TokenService;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 public class AzureTokenService implements TokenService {
+    private static final String ACCESS_TOKEN =
+            System.getProperty("INTEGRATION_TESTER_ACCESS_TOKEN",
+                    System.getenv("INTEGRATION_TESTER_ACCESS_TOKEN"));
     private static final String CLIENT_ID =
             System.getProperty("INTEGRATION_TESTER", System.getenv("INTEGRATION_TESTER"));
     private static final String CLIENT_SECRET =
@@ -15,20 +23,41 @@ public class AzureTokenService implements TokenService {
             System.getProperty("AZURE_AD_TENANT_ID", System.getenv("AZURE_AD_TENANT_ID"));
     private static final String APP_RESOURCE_ID =
             System.getProperty("AZURE_AD_APP_RESOURCE_ID", System.getenv("AZURE_AD_APP_RESOURCE_ID"));
-    private static String TOKEN;
+    private static Token TOKEN;
 
     /**
-     * Returns token of a service principal
+     * Returns the supplied bearer when one is set, otherwise a service principal's token
      */
     @Override
     public synchronized Token getToken() {
-        if (Strings.isNullOrEmpty(TOKEN)) {
-            TOKEN = retrieveToken();
+        if (TOKEN == null) {
+            TOKEN = Strings.isNullOrEmpty(ACCESS_TOKEN)
+                    ? Token.builder().value(retrieveToken()).userId(CLIENT_ID).build()
+                    : Token.builder().value(ACCESS_TOKEN).userId(callerId(ACCESS_TOKEN)).build();
         }
-        return Token.builder()
-                .value(TOKEN)
-                .userId(CLIENT_ID)
-                .build();
+        return TOKEN;
+    }
+
+    // Must match the x-user-id the gateway projects from the same claims.
+    static String callerId(String bearer) {
+        JsonNode claims;
+        try {
+            String[] parts = bearer.split("\\.");
+            claims = new ObjectMapper().readTree(
+                    new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            throw new IllegalStateException("INTEGRATION_TESTER_ACCESS_TOKEN is not a JWT", e);
+        }
+        boolean v2 = "2.0".equals(claims.path("ver").asText());
+        String[] order = v2
+                ? new String[]{"unique_name", "oid", "azp"}
+                : new String[]{"unique_name", "appid", "upn"};
+        for (String claim : order) {
+            if (claims.hasNonNull(claim)) {
+                return claims.get(claim).asText();
+            }
+        }
+        throw new IllegalStateException("INTEGRATION_TESTER_ACCESS_TOKEN names no caller");
     }
 
     private String retrieveToken() {
